@@ -25,6 +25,9 @@ export function SocketProvider({ children }) {
 			}
 
 			const newSocket = io('http://localhost:3000/student', params)
+			newSocket.on('connect', ()=>{
+				console.log('cucumba')
+			})
 			newSocket.on('register-student-id', id => {
 				setGameSession(prev => {
 					return {
@@ -37,6 +40,17 @@ export function SocketProvider({ children }) {
 				})
 			})
 
+			newSocket.on('inexistent-room', () => {
+				setGameSession(prev => {
+					return {
+						...prev,
+						game: {
+							...prev.game,
+							roomNumber: ''
+						}
+					}
+				})
+			})
 			console.log('conecta un socket')
 			setSocket(newSocket)
 
