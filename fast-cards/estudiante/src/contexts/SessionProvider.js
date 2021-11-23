@@ -8,7 +8,7 @@ export function useGameSession() {
 }
 
 export function GameSessionProvider({ children }) {
-    const sessionValues = {
+    const initialSessionValues = {
         user: {
             id: '',
             name: '',
@@ -22,7 +22,8 @@ export function GameSessionProvider({ children }) {
         },
         classMates: []
     }
-    const [gameSession, setGameSession] = useLocalStorage('session', sessionValues)
+    const [gameSession, setGameSession] = useLocalStorage('session', initialSessionValues)
+
     return (
         <GameSessionContext.Provider value={[gameSession, setGameSession]}>
             {children}

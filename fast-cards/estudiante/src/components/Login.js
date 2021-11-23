@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { nanoid } from 'nanoid'
 import { useGameSession } from '../contexts/SessionProvider'
 
 export default function Login({ teacherAprove }) {
 	const [gameSession, setGameSession] = useGameSession()
 	const [userForm, setUserForm] = useState({
-		id: nanoid(),
 		name: '',
 		rol: 'student'
 	})
