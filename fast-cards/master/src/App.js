@@ -7,60 +7,42 @@ function useLocalStorage(key) {
   const prefixedKey = PREFIX + key
   const [value, setValue] = useState(() => {
     const storedValued = localStorage.getItem(prefixedKey)
-    return (storedValued) ? storedValued : ''
+    return (storedValued) ? JSON.parse(storedValued) : ''
   })
 
   useEffect(() => {
-    localStorage.setItem(prefixedKey, value)
+    localStorage.setItem(prefixedKey, JSON.stringify(value))
   }, [prefixedKey, value])
 
   return [value, setValue]
 }
 
 function App() {
-  const [masterId, setMasterId] = useLocalStorage('id')
+  const [sessionInfo, setSessionInfo] = useLocalStorage('game-session')
 
   useEffect(() => {
     const params = {
       query: {
-        id: (masterId !== '') ? masterId : ''
+        id: (sessionInfo !== '') ? sessionInfo.masterId : '',
+        roomNumber: (sessionInfo !== '') ? sessionInfo.roomNumber : ''
       }
     }
-    const socket = io('http://localhost:3001/master', params)
-    console.log('intenta conectarse')
+    const socket = io('http://localhost:3000/master', params)
     socket.on('connect', () => {
-      console.log('se conecta')
-      socket.on('register-master-id', (id) => {
-        setMasterId(id)
-        console.log('conectado, ' + id)
+      socket.on('register-game-session', (data) => {
+        setSessionInfo(data)
       })
     })
 
     return () => socket.close()
-  }, [masterId, setMasterId])
+  }, [sessionInfo, setSessionInfo])
 
   return (
     <div className="App">
-      Inicializando, masterd id: {masterId}
+      Inicializando, masterd id: {sessionInfo.masterId} <br />
+      Sala número {sessionInfo.roomNumber}
     </div>
   )
 }
 
 export default App
-
-const masterId = localStorage.getItem(PREFIX + 'id')
-
-const params = {
-  query: {
-    id: (masterId) ? masterId : ''
-  }
-}
-
-const socket = io(window.location + 'master', params)
-
-socket.on('connect', () => {
-  socket.on('register-master-id', (masterId) => {
-    localStorage.setItem(PREFIX + 'id', masterId)
-    console.log(`recibe la id ${masterId}`)
-  })
-})
