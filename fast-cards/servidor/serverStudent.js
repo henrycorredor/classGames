@@ -5,40 +5,36 @@ module.exports = function (io, gameSessions) {
 	const studentSocket = io.of('/student')
 
 	studentSocket.on('connection', (socket) => {
-		const roomNumber = socket.handshake.query.roomNumber
-		const socketId = socket.id
-		const nameApproved = false
+		console.log('estudiante conectado')
+		let constructorRoomNumber = ''
+		let constructorstudentId = ''
 
-		let studentId = socket.handshake.query.id
-		let studentName = socket.handshake.query.name
+		socket.on('verify-room', (roomNumber, cb) => {
+			console.log('verificar sala')
+			console.log(gameSessions[roomNumber], !gameSessions[roomNumber])
+			cb(!gameSessions[roomNumber])
+		})
 
-		if (!gameSessions[roomNumber]) {
-			socket.emit('inexistent-room')
-		} else {
-			if (!studentId) {
-				studentId = nanoid()
-				socket.emit('register-student-id', studentId)
-			}
-			if (!gameSessions[roomNumber].hasOwnProperty('students')) {
-				gameSessions[roomNumber].students = [{ studentId, socketId, studentName, nameApproved }]
+		socket.on('join-room', (roomNumber, cb) => {
+			console.log('constructorRoomNumber', constructorRoomNumber)
+			if (!gameSessions[roomNumber]) {
+				cb(false, 'Sala inexistente')
 			} else {
-				const objIndex = gameSessions[roomNumber].students.findIndex(student => student.studentId === studentId)
-				if (objIndex === -1) {
-					gameSessions[roomNumber].students.push({ studentId, socketId, studentName, nameApproved })
-				} else {
-					gameSessions[roomNumber].students[objIndex].socketId = socketId
-				}
+				cb(true)
+				socket.join(roomNumber)
+				constructorRoomNumber = roomNumber
 			}
-			socket.join(roomNumber)
-			console.log(`usuario ${studentId} ingresa a la sala ${roomNumber}`)
-		}
+		})
 
-		socket.on('update-name', (studentName, roomNumber) => {
-			const objIndex = gameSessions[roomNumber].students.findIndex(student => student.studentId === studentId)
-			gameSessions[roomNumber].students[objIndex].studentName = studentName
-			const masterId = gameSessions[roomNumber].masterInfo.id
-			console.log('estudiante envio peticion de nombre, master: ' + masterId + roomNumber)
-			io.to(masterId).emit('new-name-income', { studentName, studentId })
+		socket.on('register-name', (studentName) => {
+			gameSessions[constructorRoomNumber].students.push({
+				name: studentName,
+				id: constructorstudentId,
+				nameApproved: false,
+				rol: 'student'
+			})
+			const masterId = gameSessions[constructorRoomNumber].masterInfo.socketId
+			io.of('/master').to(masterId).emit('new-student-registered', gameSessions[constructorRoomNumber].students)
 		})
 	})
 }

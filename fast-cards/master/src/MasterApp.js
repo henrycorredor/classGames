@@ -1,70 +1,84 @@
 import { useEffect, useState } from 'react'
 import useLocalStorage from './hooks/useLocalStorage'
 import io from 'socket.io-client'
-import { stringify } from 'querystring'
 
 function App() {
-  const stateOb = {
+  const initialGameState = {
     masterId: '',
     roomNumber: '',
     students: []
   }
 
-  const [sessionInfo, setSessionInfo] = useLocalStorage('game-session', stateOb)
-  const [initialState] = useState(sessionInfo)
+  const [gameState, setGameState] = useLocalStorage('game-session', initialGameState)
+  const [initialState] = useState(gameState)
+  const [socket, setSocket] = useState()
 
   useEffect(() => {
     const params = {
       query: {
-        id: (!initialState.masterId) ? '' : initialState.masterId,
-        roomNumber: (!initialState.roomNumber) ? '' : initialState.roomNumber
+        masterId: (initialState.masterId) ? initialState.masterId : '',
+        roomNumber: (initialState.roomNumber) ? initialState.roomNumber : ''
       }
     }
-    const socket = io('http://localhost:3000/master', params)
+    const newSocket = io('http://localhost:3000/master', params)
+    newSocket.on('connect', () => {
+      setSocket(newSocket)
+    })
 
-    socket.on('connect', () => {
-
-      socket.on('register-game-session', (data) => {
-        setSessionInfo(data)
-      })
-
-      socket.on('new-name-income', ({ studentName, studentId }) => {
-        setSessionInfo(actualSession => {
-          return {
-            ...actualSession,
-            students: [
-              ...actualSession.students,
-              [{ studentName, studentId, approvedName: false }]
-            ]
-          }
-        })
-      })
-
-      socket.on('student-join', (studentList) => {
-        setSessionInfo(actualSession => {
-          return {
-            ...actualSession,
-            students: studentList
-          }
-        })
+    newSocket.on('inexistent-room', () => {
+      setGameState(state => {
+        return {
+          ...state,
+          roomNumber: ''
+        }
       })
     })
-    return () => socket.close()
-  }, [initialState.masterId, initialState.roomNumber, setSessionInfo])
 
-  return (
-    <div className="App">
-      Inicializando, masterd id: {sessionInfo.masterId} <br />
-      Sala número {sessionInfo.roomNumber} <br />
-      Conectados: <br />
-      <ul>
-        {sessionInfo.students.map(student => (
-          <li key={student.id}>{student.name} - {stringify(student.nameApproved)}</li>
-        ))}
-        <li>En proceso...</li>
-      </ul>
-    </div>
-  )
+    newSocket.on('new-student-registered', (studentsArray) => {
+      setGameState(state => {
+        return {
+          ...state,
+          students: [...studentsArray]
+        }
+      })
+    })
+    return () => newSocket.close()
+  }, [initialState, setGameState])
+
+  function createRoom() {
+    socket.emit('create-room', (masterId, roomNumber, students) => {
+      setGameState({ masterId, roomNumber, students })
+    })
+  }
+
+
+
+  let toPrint = ''
+  if (socket == null) {
+    toPrint = <div>Conectando ...</div>
+  } else if (gameState.roomNumber === '') {
+    toPrint = (
+      <div>
+        <button type='submit' onClick={createRoom}>Generar sala</button>
+      </div>
+    )
+  } else {
+    toPrint = (
+      <div>
+        Inicializando, masterd id: {gameState.masterId} <br />
+        Sala número {gameState.roomNumber} <br />
+        Conectados: <br />
+        <ul>
+          {gameState.students.map(student => (
+            <li key={student.id}>{student.name} - {student.nameApproved.toString()}</li>
+          ))}
+          <li>En proceso...</li>
+        </ul>
+      </div>
+    )
+  }
+
+  return <div className="App">{toPrint}</div>
 }
 
 export default App

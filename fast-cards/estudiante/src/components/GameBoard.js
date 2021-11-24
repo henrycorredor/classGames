@@ -1,9 +1,9 @@
 import { useGameSession } from '../contexts/SessionProvider'
-import { useCallback, useEffect } from 'react'
 import { CardsBoardProvider } from '../contexts/CardsGameProvider'
-import Login from './Login'
+import SubmitName from './SubmitName'
 import WaitingRoom from './WaitingRoom'
 import CardsBoard from './CardsBoard'
+import EnterRoom from './EnterRoom'
 
 /* Game states:
 
@@ -23,71 +23,24 @@ import CardsBoard from './CardsBoard'
 			- Again - go to 
 */
 export default function GameBoard() {
-	const [gameSession, setGameSession] = useGameSession()
-	const { user, game } = gameSession
-
-	const updateGameState = useCallback((state) => {
-		setGameSession(original => {
-			const newState = {
-				...original.game,
-				state
-			}
-			return {
-				...original,
-				game: { ...newState }
-			}
-		})
-	}, [setGameSession])
-
-	useEffect(() => {
-		if (!game.roomNumber || !user.name) {
-			updateGameState(2)
-		} else if (!user.nameApproved) {
-			updateGameState(3)
-		} else {
-
-		}
-	}, [game.roomNumber, user.name, user.nameApproved, updateGameState])
-
-	function teacherApproveMyName(approved) {
-		setGameSession(original => {
-			let newItem
-			if (approved) {
-				newItem = {
-					user: {
-						...original.user,
-						nameApproved: true
-					}
-				}
-			} else {
-				newItem = {
-					user: {
-						...original.user,
-						name: ''
-					}
-				}
-			}
-			return {
-				...original,
-				...newItem
-			}
-		})
-		updateGameState(4)
-	}
-
-	function teacherStartsGame() {
-		updateGameState(5)
-	}
+	const [gameSession, updateGameSession] = useGameSession()
+	const { game } = gameSession
 
 	let imprimirEsto
+
 	switch (game.state) {
+		case 0:
+			imprimirEsto = (<div>Conectando ...</div>)
+			break
 		case 1:
+			imprimirEsto = <EnterRoom updateGameSession={updateGameSession} />
+			break
 		case 2:
-			imprimirEsto = <Login />
+			imprimirEsto = <SubmitName updateGameSession={updateGameSession}  />
 			break
 		case 3:
 		case 4:
-			imprimirEsto = <WaitingRoom teacherAprove={teacherApproveMyName} teacherStats={teacherStartsGame} />
+			imprimirEsto = <WaitingRoom />
 			break
 		case 5:
 		case 6:

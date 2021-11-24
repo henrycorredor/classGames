@@ -7,11 +7,11 @@ import GameBoard from "./GameBoard"
 function App() {
   return (
     <SettingsProvider>
-      <GameSessionProvider>
-        <SocketProvider>
+      <SocketProvider>
+        <GameSessionProvider>
           <GameBoard />
-        </SocketProvider>
-      </GameSessionProvider>
+        </GameSessionProvider>
+      </SocketProvider>
     </SettingsProvider>
   )
 }
