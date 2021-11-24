@@ -38,7 +38,7 @@ export function GameSessionProvider({ children }) {
 	}
 
 	const [gameSession, setGameSession] = useLocalStorage('session', initialSessionValues)
-	const [initialState] = useState(gameSession)
+	const [initialRoomNumber] = useState(gameSession.game.roomNumber)
 	const socket = useSocket()
 
 	const updateGameSession = useCallback((toUpdate, section) => {
@@ -61,26 +61,34 @@ export function GameSessionProvider({ children }) {
 		})
 	}, [setGameSession])
 
+	const restoreSession = useCallback(() => {
+		console.log('recostruye sesion')
+		updateGameSession({ state: 1, roomNumber: '' }, 'game')
+		updateGameSession({ name: '' }, 'user')
+	}, [updateGameSession])
+
+	const verifyRoom = useCallback((initialRoomNumber) => {
+		const roomNumber = (initialRoomNumber) ? initialRoomNumber : gameSession.game.roomNumber
+		console.log('verifica sala numero ', roomNumber)
+		socket.emit('verify-room', roomNumber, (noFound) => {
+			if (noFound) {
+				restoreSession()
+			}
+		})
+	}, [restoreSession, socket, gameSession.game.roomNumber])
+
 	useEffect(() => {
 		if (socket != null) {
-			const initialRoomNumber = initialState.game.roomNumber
-			console.log('numero de sala ', initialRoomNumber)
 			if (initialRoomNumber !== '') {
-				console.log('verifica numero de sala')
-				socket.emit('verify-room', initialRoomNumber, (stillExist) => {
-					if (!stillExist) {
-						console.log('recostruye sesion')
-						updateGameSession({ state: 1 }, 'game')
-						updateGameSession({ name: '' }, 'user')
-						updateGameSession({ roomNumber: '' }, 'game')
-					} else {
-						console.log('reaunda sesion')
-					}
-				})
+				verifyRoom(initialRoomNumber)
 			}
 
+			socket.io.on('reconnect', () => {
+				console.log('reconecta')
+				verifyRoom()
+			})
 		}
-	}, [socket, initialState, updateGameSession])
+	}, [socket, initialRoomNumber, verifyRoom])
 
 	return (
 		<GameSessionContext.Provider value={[gameSession, updateGameSession]}>

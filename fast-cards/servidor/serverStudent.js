@@ -9,6 +9,10 @@ module.exports = function (io, gameSessions) {
 		let constructorRoomNumber = ''
 		let constructorstudentId = ''
 
+		socket.on('disconnect', () => {
+			console.log('socket desconectado ', socket.id)
+		})
+
 		socket.on('verify-room', (roomNumber, cb) => {
 			console.log('verificar sala')
 			console.log(gameSessions[roomNumber], !gameSessions[roomNumber])
@@ -17,8 +21,10 @@ module.exports = function (io, gameSessions) {
 
 		socket.on('join-room', (roomNumber, cb) => {
 			console.log('constructorRoomNumber', constructorRoomNumber)
+			console.log('sala previa', (!gameSessions[roomNumber]))
+			console.log(gameSessions[roomNumber])
 			if (!gameSessions[roomNumber]) {
-				cb(false, 'Sala inexistente')
+				cb(false, 'Sala inexistente.')
 			} else {
 				cb(true)
 				socket.join(roomNumber)

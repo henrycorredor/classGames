@@ -11,14 +11,14 @@ export function SocketProvider({ children }) {
 	const [socket, setSocket] = useState()
 
 	useEffect(() => {
-		if (socket == null) {
-			const newSocket = io('http://localhost:3000/student')
-			console.log('intenta conectar el socket')
-			newSocket.on('connect', () => {
-				setSocket(newSocket)
-			})
-		}
-	}, [socket])
+		const newSocket = io('http://localhost:3000/student')
+		console.log('intenta conectar el socket')
+		newSocket.on('connect', () => {
+			setSocket(newSocket)
+			console.log('conectado')
+		})
+		return (() => { newSocket.close() })
+	}, [])
 
 	return (
 		<SocketContext.Provider value={socket}>
