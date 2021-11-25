@@ -5,18 +5,18 @@ module.exports = function (io, gameSessions) {
 	const masterSocket = io.of('/master')
 
 	masterSocket.on('connection', (socket) => {
-		let masterId = socket.handshake.query.id
-		let roomNumber = socket.handshake.query.roomNumber
-
 		const socketId = socket.id
 
-		if (roomNumber !== '') {
-			if (!gameSessions[roomNumber]) {
-				socket.emit('inexistent-room')
-			} else {
-				gameSessions[roomNumber].masterInfo.socketId = socketId
-			}
-		}
+		console.log('master conectado')
+
+		socket.on('disconnect', () => {
+			console.log('socket maestro desconectado ', socket.id)
+		})
+
+		socket.on('verify-room', (roomNumber, cb) => {
+			cb(!gameSessions[roomNumber])
+			console.log('maestro verifica sala', (!gameSessions[roomNumber]))
+		})
 
 		socket.on('create-room', (cb) => {
 			roomNumber = Math.floor(Math.random() * 90000) + 10000
@@ -26,7 +26,7 @@ module.exports = function (io, gameSessions) {
 				students: []
 			}
 			cb(masterId, roomNumber, [])
-			console.log(gameSessions)
+			console.log(`sala número ${roomNumber} creada`)
 		})
 	})
 }

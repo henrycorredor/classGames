@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
+import useUpdateGameSession from '../hooks/useUpdateGameSession'
 import { useSocket } from './SocketProvider'
 
 const GameSessionContext = createContext()
@@ -21,45 +22,27 @@ States:
 4 - Game
 */
 
-export function GameSessionProvider({ children }) {
-	const initialSessionValues = {
-		user: {
-			id: '',
-			name: '',
-			rol: '',
-			nameApproved: false
-		},
-		game: {
-			roomNumber: '',
-			state: 0,
-			score: 0,
-		},
-		classMates: []
-	}
+const initialSessionValues = {
+	user: {
+		id: '',
+		name: '',
+		rol: '',
+		nameApproved: false
+	},
+	game: {
+		roomNumber: '',
+		state: 0,
+		score: 0,
+	},
+	classMates: []
+}
 
+export function GameSessionProvider({ children }) {
 	const [gameSession, setGameSession] = useLocalStorage('session', initialSessionValues)
 	const [initialRoomNumber] = useState(gameSession.game.roomNumber)
+	const updateGameSession = useUpdateGameSession(gameSession, setGameSession)
 	const socket = useSocket()
 
-	const updateGameSession = useCallback((toUpdate, section) => {
-		setGameSession(sessionPrev => {
-			const userPrev = sessionPrev.user
-			const gamePrev = sessionPrev.game
-			const userToUpdate = (section === 'user') ? toUpdate : {}
-			const gameToUpdate = (section === 'game') ? toUpdate : {}
-			return ({
-				user: {
-					...userPrev,
-					...userToUpdate
-				},
-				game: {
-					...gamePrev,
-					...gameToUpdate
-				},
-				classMates: [...sessionPrev.classMates]
-			})
-		})
-	}, [setGameSession])
 
 	const restoreSession = useCallback(() => {
 		console.log('recostruye sesion')
@@ -67,21 +50,31 @@ export function GameSessionProvider({ children }) {
 		updateGameSession({ name: '' }, 'user')
 	}, [updateGameSession])
 
+
 	const verifyRoom = useCallback((initialRoomNumber) => {
 		const roomNumber = (initialRoomNumber) ? initialRoomNumber : gameSession.game.roomNumber
 		console.log('verifica sala numero ', roomNumber)
 		socket.emit('verify-room', roomNumber, (noFound) => {
 			if (noFound) {
 				restoreSession()
+			} else {
+				console.log('pasa')
 			}
 		})
 	}, [restoreSession, socket, gameSession.game.roomNumber])
 
+
 	useEffect(() => {
-		if (socket != null) {
+		console.log('entra al hook')
+		if (socket !== '') {
 			if (initialRoomNumber !== '') {
+				console.log('registro de numero inicial: ' + initialRoomNumber)
 				verifyRoom(initialRoomNumber)
 			}
+
+			socket.on('connect',()=>{
+				console.log('conectado')
+			})
 
 			socket.io.on('reconnect', () => {
 				console.log('reconecta')

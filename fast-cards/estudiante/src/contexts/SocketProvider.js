@@ -8,17 +8,21 @@ export function useSocket() {
 }
 
 export function SocketProvider({ children }) {
-	const [socket, setSocket] = useState()
+	const [socket, setSocket] = useState('')
 
 	useEffect(() => {
-		const newSocket = io('http://localhost:3000/student')
-		console.log('intenta conectar el socket')
-		newSocket.on('connect', () => {
-			setSocket(newSocket)
-			console.log('conectado')
+		if (socket === '') {
+			const newSocket = io('http://localhost:3000/student')
+			console.log('intenta conectar el socket')
+			newSocket.on('connect', () => {
+				setSocket(newSocket)
+				console.log('conectado')
+			})
+		}
+		return (() => {
+			if (socket !== '') socket.close()
 		})
-		return (() => { newSocket.close() })
-	}, [])
+	}, [socket])
 
 	return (
 		<SocketContext.Provider value={socket}>

@@ -10,12 +10,11 @@ module.exports = function (io, gameSessions) {
 		let constructorstudentId = ''
 
 		socket.on('disconnect', () => {
-			console.log('socket desconectado ', socket.id)
+			console.log('socket de estudiante desconectado ', socket.id)
 		})
 
 		socket.on('verify-room', (roomNumber, cb) => {
-			console.log('verificar sala')
-			console.log(gameSessions[roomNumber], !gameSessions[roomNumber])
+			console.log('estudiante verifica sala')
 			cb(!gameSessions[roomNumber])
 		})
 
