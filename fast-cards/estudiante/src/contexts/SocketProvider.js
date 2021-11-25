@@ -13,11 +13,7 @@ export function SocketProvider({ children }) {
 	useEffect(() => {
 		if (socket === '') {
 			const newSocket = io('http://localhost:3000/student')
-			console.log('intenta conectar el socket')
-			newSocket.on('connect', () => {
-				setSocket(newSocket)
-				console.log('conectado')
-			})
+			setSocket(newSocket)
 		}
 		return (() => {
 			if (socket !== '') socket.close()

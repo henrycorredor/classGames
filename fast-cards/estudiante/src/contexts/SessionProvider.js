@@ -39,10 +39,9 @@ const initialSessionValues = {
 
 export function GameSessionProvider({ children }) {
 	const [gameSession, setGameSession] = useLocalStorage('session', initialSessionValues)
-	const [initialRoomNumber] = useState(gameSession.game.roomNumber)
 	const updateGameSession = useUpdateGameSession(gameSession, setGameSession)
+	const [canPass, setCanPass] = useState(true)
 	const socket = useSocket()
-
 
 	const restoreSession = useCallback(() => {
 		console.log('recostruye sesion')
@@ -50,38 +49,41 @@ export function GameSessionProvider({ children }) {
 		updateGameSession({ name: '' }, 'user')
 	}, [updateGameSession])
 
-
-	const verifyRoom = useCallback((initialRoomNumber) => {
-		const roomNumber = (initialRoomNumber) ? initialRoomNumber : gameSession.game.roomNumber
-		console.log('verifica sala numero ', roomNumber)
+	const verifyRoom = useCallback(() => {
+		const roomNumber = gameSession.game.roomNumber
+		console.log('verifica sala numero')
 		socket.emit('verify-room', roomNumber, (noFound) => {
 			if (noFound) {
+				console.log('recostruye')
 				restoreSession()
-			} else {
-				console.log('pasa')
 			}
 		})
 	}, [restoreSession, socket, gameSession.game.roomNumber])
 
 
 	useEffect(() => {
-		console.log('entra al hook')
 		if (socket !== '') {
-			if (initialRoomNumber !== '') {
-				console.log('registro de numero inicial: ' + initialRoomNumber)
-				verifyRoom(initialRoomNumber)
+			if (canPass) {
+				setCanPass(false)
+
+				socket.on('connect', () => {
+					console.log('conectado')
+
+					if (gameSession.game.roomNumber !== '') {
+						verifyRoom()
+					} else {
+						updateGameSession({ state: 1 }, 'game')
+					}
+				})
 			}
-
-			socket.on('connect',()=>{
-				console.log('conectado')
-			})
-
-			socket.io.on('reconnect', () => {
-				console.log('reconecta')
-				verifyRoom()
-			})
 		}
-	}, [socket, initialRoomNumber, verifyRoom])
+	}, [
+		socket,
+		gameSession.game.roomNumber,
+		updateGameSession,
+		verifyRoom,
+		canPass
+	])
 
 	return (
 		<GameSessionContext.Provider value={[gameSession, updateGameSession]}>

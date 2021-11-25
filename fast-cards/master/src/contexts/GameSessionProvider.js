@@ -35,7 +35,10 @@ export function GameSessionProvider({ children }) {
 				}
 			})
 		}
-	}, [socket, gameSession.roomNumber, setGameSession])
+	}, [
+		socket,
+		gameSession.roomNumber,
+		setGameSession])
 
 	useEffect(() => {
 		if (socket !== '') {

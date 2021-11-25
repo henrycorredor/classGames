@@ -10,12 +10,15 @@ module.exports = function (io, gameSessions) {
 		console.log('master conectado')
 
 		socket.on('disconnect', () => {
-			console.log('socket maestro desconectado ', socket.id)
+			console.log('socket maestro desconectado')
 		})
 
 		socket.on('verify-room', (roomNumber, cb) => {
-			cb(!gameSessions[roomNumber])
-			console.log('maestro verifica sala', (!gameSessions[roomNumber]))
+			const notFound = !gameSessions[roomNumber]
+			if (!notFound) {
+				gameSessions[roomNumber].masterInfo.socketId = socket.id
+			}
+			cb(notFound)
 		})
 
 		socket.on('create-room', (cb) => {
@@ -26,7 +29,6 @@ module.exports = function (io, gameSessions) {
 				students: []
 			}
 			cb(masterId, roomNumber, [])
-			console.log(`sala número ${roomNumber} creada`)
 		})
 	})
 }
