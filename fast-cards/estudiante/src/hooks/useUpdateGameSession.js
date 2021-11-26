@@ -1,21 +1,23 @@
-export default function useUpdateGameSession(gameSession, setGameSession) {
-	return function (valuesObj, objSection) {
-		const userPrev = gameSession.user
-		const gamePrev = gameSession.game
-		const userToUpdate = (objSection === 'user') ? valuesObj : {}
-		const gameToUpdate = (objSection === 'game') ? valuesObj : {}
-		setGameSession(
-			{
+export default function useUpdateGameSession(setGameSession) {
+	return function (updateObj) {
+		updateObj.user = (!updateObj.user) ? {} : updateObj.user
+		updateObj.game = (!updateObj.game) ? {} : updateObj.game
+		updateObj.classMates = (!updateObj.classMates) ? [] : updateObj.classMates
+
+		setGameSession(prevSession => {
+			return {
 				user: {
-					...userPrev,
-					...userToUpdate
+					...prevSession.user,
+					...updateObj.user
 				},
 				game: {
-					...gamePrev,
-					...gameToUpdate
+					...prevSession.game,
+					...updateObj.game
 				},
-				classMates: [...gameSession.classMates]
+				classMates: [
+					...updateObj.classMates
+				]
 			}
-		)
+		})
 	}
 }

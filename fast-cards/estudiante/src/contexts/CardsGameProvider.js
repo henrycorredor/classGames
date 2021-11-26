@@ -25,7 +25,7 @@ function setNewTurn(cardsDeck) {
 }
 
 export function CardsBoardProvider({ children }) {
-	const [gameSession] = useGameSession()
+	const {gameSession} = useGameSession()
 
 	const [cardsDeck, setCardsDeck] = useState({
 		fullDeck: [],

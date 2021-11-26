@@ -8,6 +8,6 @@ export default function Dasboard() {
 	if (!gameSession.roomNumber) {
 		return <CreateRoom />
 	} else {
-		return <StudentList gameSession={gameSession} />
+		return <StudentList />
 	}
 }

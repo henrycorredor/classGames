@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useGameSession } from '../contexts/SessionProvider'
 import { useSocket } from '../contexts/SocketProvider'
 
-export default function Login({ updateGameSession }) {
+export default function SubmitName() {
 	const [userName, setUserName] = useState('')
 	const socket = useSocket()
+	const { updateGameSession } = useGameSession()
 
 	function nameHandleChange({ target }) {
 		setUserName(target.value)
@@ -11,8 +13,7 @@ export default function Login({ updateGameSession }) {
 
 	function handleSubmit(e) {
 		e.preventDefault()
-		updateGameSession({ name: userName, rol: 'student' }, 'user')
-		updateGameSession({state: 3}, 'game')
+		updateGameSession({ user: { name: userName, rol: 'student' }, game: { state: 3 } })
 		socket.emit('register-name', userName)
 	}
 

@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { useSocket } from "../contexts/SocketProvider"
+import { useGameSession } from "../contexts/SessionProvider"
 
-export default function EnterRoom({ updateGameSession }) {
+export default function EnterRoom() {
 	const socket = useSocket()
+	const {updateGameSession} = useGameSession()
 
 	const [warning, setWarning] = useState('')
 	const [roomNumber, setRoomNumber] = useState('')
@@ -14,10 +16,9 @@ export default function EnterRoom({ updateGameSession }) {
 
 	function handleSubmit(e) {
 		e.preventDefault()
-		socket.emit('join-room', roomNumber, (ok, warning) => {
+		socket.emit('join-room', roomNumber, (ok, newId, warning) => {
 			if (ok) {
-				console.log('hecho')
-				updateGameSession({ roomNumber, state: 2 }, 'game')
+				updateGameSession({ game: { roomNumber, state: 2 }, user: { id: newId } })
 			} else {
 				setWarning(warning)
 				setRoomNumber('')

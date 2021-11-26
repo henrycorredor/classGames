@@ -5,25 +5,22 @@ import WaitingRoom from './WaitingRoom'
 import CardsBoard from './CardsBoard'
 import EnterRoom from './EnterRoom'
 
-/* Game states:
-
-1- If player didn't scanned the QR code, player needs to input manually room number.
-			- User input code and hit 'Listo'
-2- Input name
-			- User input name and hit 'Listo'
-3- User waits for teacher approval
-			- Server sends a 'ok' sign
-4- User waits for all players are ready
-			- Teacher hit 'Empezar juego'
-5- Tutorial is shown
-			- Tutorial ends when the first round is done
-6- Cards Play
-			- Get max points
-7- Game over
-			- Again - go to 
+/**
+States:
+0 - Waiting for connect the socket
+				- socket connected
+1- Socket connected, Input room number
+				- submit room number
+2 - Confirmated room, input name
+				- submit name
+3 - Name submited, waiting for teacher approval
+				- teacher approved
+4 - Approved, wait for teacher to start
+				- game started
+5 - Game
 */
 export default function GameBoard() {
-	const [gameSession, updateGameSession] = useGameSession()
+	const { gameSession } = useGameSession()
 	const { game } = gameSession
 
 	let imprimirEsto
@@ -33,10 +30,10 @@ export default function GameBoard() {
 			imprimirEsto = (<div>Conectando ...</div>)
 			break
 		case 1:
-			imprimirEsto = <EnterRoom updateGameSession={updateGameSession} />
+			imprimirEsto = <EnterRoom />
 			break
 		case 2:
-			imprimirEsto = <SubmitName updateGameSession={updateGameSession}  />
+			imprimirEsto = <SubmitName />
 			break
 		case 3:
 		case 4:
