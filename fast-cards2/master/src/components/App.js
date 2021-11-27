@@ -1,4 +1,26 @@
 /*
+Server game session object
+{
+	room-4345:{
+		master: {
+			socket: string,
+			status: 1
+		},
+		students:[
+			{
+				id: string,
+				name: string,
+				socket: string,
+				online: true,
+				approved: true,
+				rol: 'student'
+				status: 1
+			}
+		]
+}
+
+
+
 Player states
 1 - Connecting
 			- connected
@@ -11,41 +33,6 @@ Player states
 5 - Playing
 			- Game is over, server notifies
 6 - Game over
-
-
-Master states
-1 - Connecting
-			- connected
-2 - Waiting for students, accept, reject, select teachers
-			- hit start button
-3 - Playing
-			- Server ends the game
-4 - Game over
-
-
-Server game session object
-{
-	game: {
-		room: 28736,
-		status: 1
-	},
-	master: {
-		id: string,
-		socket: string,
-		status: 1
-	},
-	students:[
-		{
-			id: string,
-			name: string,
-			socket: string,
-			online: true,
-			accepted: true,
-			rol: 'student'
-			status: 1
-		}
-	]
-}
 
 Student game session object
 {
@@ -66,24 +53,36 @@ Student game session object
 	]
 }
 
+
+Master states
+1 - Connecting
+			- connected
+2 - Create room button
+			- hit create button, gets room ID
+3 - Waiting for students, accept, reject, select teachers
+			- hit start button
+4 - Playing
+			- Server ends the game
+5 - Game over
+
+
 Master object
 {
-	game:{
-		room: 28736,
-		status: 1,
-		id: string
-	},
+	room: 28736,
+	status: 1,
 	students: [
 		id: string,
 		name: string,
 		online: true,
-		rol: 'student'
+		rol: 'student',
+		approved: false
 	]
 }
 */
 
-import { GameSessionProvider } from '../contexts/GameSessionContext'
-import { SocketProvider } from '../contexts/SocketContext'
+import { GameSessionProvider } from '../contexts/GameSessionProvider'
+import { SocketProvider } from '../contexts/SocketProvider'
+import GameBoard from '../components/GameBoard'
 
 function App() {
 	return (

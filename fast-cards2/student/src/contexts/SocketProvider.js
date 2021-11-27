@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import io from 'socket.io-client'
-
 const SocketContext = createContext()
 
 export function useSocket() {
@@ -12,8 +11,12 @@ export function SocketProvider({ children }) {
 
 	useEffect(() => {
 		if (socket === '') {
-			socket = io('http://localhost:3000/student')
-			setSocket(socket)
+			const newSocket = io('http://localhost:3000/student')
+			setSocket(newSocket)
+		}
+
+		return () => {
+			if (socket !== '') socket.close()
 		}
 	}, [socket])
 

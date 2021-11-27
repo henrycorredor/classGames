@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react"
+import { useState, useEffect } from 'react'
 
-const PREFIX = 'cg-master-fast-card-'
+const PREFIX = 'cg-student-fast-card-'
 
 export default function useLocalStorage(key, initialValue) {
 	const prefixedKey = PREFIX + key
-
 	const [value, setValue] = useState(() => {
-		const savedValue = localStorage.getItem(prefixedKey)
-		return (savedValue) ? JSON.parse(savedValue) : initialValue
+		const storedValue = localStorage.getItem(prefixedKey)
+		return (storedValue) ? JSON.parse(storedValue) : initialValue
 	})
 
 	useEffect(() => {
