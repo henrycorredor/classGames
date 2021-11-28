@@ -1,8 +1,8 @@
 import { useGameContext } from '../contexts/GameSessionProvider'
 import InputRoomNumber from './InputRoomNumber'
 import InputName from './InputName'
-import GameBoard from './GameBoard'
-import { CardsDeckProvider } from '../contexts/CardsDeckProvider'
+import WaitingClassmates from './WaitingClassmates'
+import CardsPlayground from './CardsPlayground'
 
 export default function GameDesktop() {
 	const { gameSession } = useGameContext()
@@ -15,13 +15,11 @@ export default function GameDesktop() {
 		case 3:
 			return <InputName />
 		case 4:
+			return <WaitingClassmates />
 		case 5:
+			return <CardsPlayground />
 		case 6:
-			return (
-				<CardsDeckProvider>
-					<GameBoard />
-				</CardsDeckProvider>
-			)
+			return
 		default:
 			return <div>Oops...</div>
 	}

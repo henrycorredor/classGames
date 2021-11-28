@@ -35,12 +35,15 @@ Student game session object
 import { SocketProvider } from '../contexts/SocketProvider'
 import { GameSessionProvider } from '../contexts/GameSessionProvider'
 import GameDesktop from './GameDesktop'
+import { CardsDeckProvider } from '../contexts/CardsDeckProvider';
 
 function App() {
 	return (
 		<SocketProvider>
 			<GameSessionProvider>
-				<GameDesktop />
+				<CardsDeckProvider>
+					<GameDesktop />
+				</CardsDeckProvider>
 			</GameSessionProvider>
 		</SocketProvider>
 	);

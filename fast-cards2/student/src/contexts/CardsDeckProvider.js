@@ -18,6 +18,7 @@ export function CardsDeckProvider({ children }) {
 		if (socket !== '') {
 			socket.on('start-game', (newCardsDeck) => {
 				console.log(newCardsDeck)
+	
 				updateGameSession({ game: { status: 5 } })
 				setCardsDeck(newCardsDeck)
 			})
