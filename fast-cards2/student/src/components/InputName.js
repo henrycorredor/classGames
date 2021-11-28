@@ -19,19 +19,20 @@ export default function InputName() {
 		setStudentName('')
 	}
 
-	if(gameSession.user.name === ''){
+	if (gameSession.user.name === '') {
 		return (
 			<div>
-					<form onSubmit={handleSubmit}>
-						<label>
-							Tu nombre:
-							<input type='text' onChange={handleChange} value={studentName} />
-						</label>
-						<button>Registrar</button>
-					</form>
+				<form onSubmit={handleSubmit}>
+					<label>
+						Tu nombre:
+						<input type='text' onChange={handleChange} value={studentName} />
+					</label>
+					<button>Registrar</button>
+				</form>
+				{gameSession.user.id}
 			</div>
 		)
-	}else{
-		return <div>Espera un momento que el profe te apruebe...</div>
+	} else {
+		return <div>Espera un momento que el profe te apruebe... <br />{gameSession.user.id}</div>
 	}
 }

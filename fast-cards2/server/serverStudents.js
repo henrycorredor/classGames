@@ -1,107 +1,127 @@
 const { nanoid } = require('nanoid')
 
-module.exports = function (io, gameSessions) {
+module.exports = function (io, gameSessions, gameInstances) {
 	const studentSocket = io.of('/student')
 
 	studentSocket.on('connect', (socket) => {
 		console.log('estudiante conectado')
 
-		let instanceRoomNumber = ''
+		let room = ''
 		let myId = ''
+		let session = ''
+
+		function getStudent(id) {
+			const student = session.students.filter(s => s.id === id)
+			return (student.length === 0) ? null : student[0]
+		}
+
+		function getWaitingStudent(id) {
+			const student = session.waiting.filter(s => s.id === id)
+			return (student.length === 0) ? null : student[0]
+		}
+
+		function studentsListToClient() {
+			return session.students.map(s => {
+				return {
+					id: s.id,
+					name: s.name,
+					online: s.online,
+					rol: s.rol
+				}
+			})
+		}
+
+		function getCardsDeck() {
+			return (gameInstances[room]) ?
+				gameInstances[room].cardDeck() :
+				{
+					fullDeck: [],
+					randomSelection: [],
+					rightAnswer: 0,
+					clicked: [],
+					points: 0
+				}
+		}
 
 		socket.on('disconnect', () => {
 			console.log('estudiante desconectado')
 		})
 
-		function getStudentById(id) {
-			const student = gameSessions['room' + instanceRoomNumber].students.filter(s => s.id === id)
-			return (student.length === 0) ? null : student[0]
-		}
+		socket.on('join-room', (roomNumber, cb) => {
+			console.log('estudiante entra a sala')
+			if (gameSessions['room-' + roomNumber]) {
 
-		function getApprovedStudentsList() {
-			return gameSessions['room' + instanceRoomNumber].students.filter(s => s.approved)
-		}
+				room = 'room-' + roomNumber
+				myId = nanoid()
+				session = gameSessions['room-' + roomNumber]
+
+				session.waiting.push({
+					id: myId,
+					name: '',
+					socket: socket.id
+				})
+				socket.join(room)
+				cb(true, myId)
+			} else {
+				cb(false, 'Sala inexistente')
+			}
+		})
 
 		socket.on('verify-room', (roomNumber, userId, cb) => {
 			console.log('estudiante verfica sala')
-			instanceRoomNumber = roomNumber
-			myId = userId
-			if (gameSessions['room' + roomNumber]) {
-				const student = getStudentById(userId)
-				student.socket = socket.id
-				cb({
-					game: { status: student.status },
-					user: {
-						name: student.name,
-						rol: student.rol
-					},
-					students: getApprovedStudentsList()
-				})
-				socket.join('room' + roomNumber)
+
+			if (gameSessions['room-' + roomNumber]) {
+				session = gameSessions['room-' + roomNumber]
+				const student = getStudent(userId)
+				const waiting = getWaitingStudent(userId)
+
+				if (student || waiting) {
+					room = 'room-' + roomNumber
+					myId = userId
+					if (student) {
+						student.socket = socket.id
+					} else {
+						waiting.socket = socket.id
+					}
+					socket.join(room)
+					cb(
+						true,
+						{
+							game: { status: (student) ? student.status : (waiting.name === '') ? 3 : 4 },
+							user: {
+								name: (student) ? student.name : waiting.name,
+								rol: (student) ? student.rol : 'student'
+							},
+							students: studentsListToClient(),
+							cardsDeck: getCardsDeck()
+						}
+					)
+				} else {
+					cb(false)
+				}
 			} else {
 				cb(false)
 			}
 		})
 
-		socket.on('join-room', (roomNumber, cb) => {
-			if (gameSessions['room' + roomNumber]) {
-				console.log('usuario ingresa a sala')
-				instanceRoomNumber = roomNumber
-				myId = nanoid()
-				gameSessions['room' + roomNumber].students.push({
-					id: myId,
-					name: '',
-					socket: socket.id,
-					online: true,
-					approved: false,
-					rol: 'student',
-					status: 3
-				})
-				cb(true, myId)
-				socket.join('room' + roomNumber)
-			} else {
-				console.log('sala inexistente')
-				cb(false, '', 'Sala inexistente')
-			}
+		socket.on('register-name', (studentName, cb) => {
+			console.log('intenta registrar nombre')
+			const student = getWaitingStudent(myId)
+			console.log(student)
+			student.name = studentName
+			const master = session.master.socket
+			console.log('envia anuncio al master: ' + master)
+			io.of('/master').to(master).emit('user-provide-name', session.waiting.filter(s => s.name !== ''))
+			cb(true)
 		})
 
-		socket.on('register-name', (studentName, cb) => {
-			const student = getStudentById(myId)
-			student.name = studentName
-			const masterSocket = gameSessions['room' + instanceRoomNumber].master.socket
-			const namedStudentsList = gameSessions['room' + instanceRoomNumber].students.filter(s => s.name != '')
-			io.of('/master').to(masterSocket).emit(
-				'user-provide-name',
-				namedStudentsList.map(s => {
-					return {
-						id: s.id,
-						name: s.name,
-						online: s.online,
-						rol: s.rol,
-						approved: s.approved
-					}
-				})
-			)
-			cb()
+		socket.on('hit-card', (userId, cardIndex) => {
+			gameInstances[room].hitCard(userId, cardIndex)
+			const cardDeck = gameInstances[room].cardDeck()
+			console.log('alguien dio clic')
+			console.log(cardDeck.clicked)
+			console.log(userId)
+			io.of('/student').to(room).emit('update-cards-deck', cardDeck)
 		})
 	})
 }
-
-
-/*{
-	game:{
-		room: 28736,
-		status: 1
-	},
-	user: {
-		id: string,
-		name: string,
-		rol: 'student'
-	},
-	students: [
-		id: string,
-		name: string,
-		online: true,
-		rol: 'student'
-	]
-}*/

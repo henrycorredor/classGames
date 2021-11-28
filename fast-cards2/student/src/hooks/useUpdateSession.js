@@ -13,7 +13,11 @@ export default function useUpdateSession(setGameSession) {
 				},
 				students: [
 					...newObj.students
-				]
+				],
+				cardsDeck: {
+					...prevObj.cardsDeck,
+					...newObj.cardsDeck
+				}
 			})
 		})
 	}

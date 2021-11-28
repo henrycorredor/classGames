@@ -12,7 +12,8 @@ export function useGameSession() {
 const initialGameSession = {
 	room: '',
 	status: 1,
-	students: []
+	students: [],
+	waiting: []
 }
 
 /*
@@ -32,31 +33,34 @@ export function GameSessionProvider({ children }) {
 	const socket = useSocket()
 
 	useEffect(() => {
+		console.log('canPass', canPass, 'socket', (socket !== ''))
 		if (socket !== '' && canPass) {
-			setCanPass(false)
-
+			console.log('se instauran los listeners basicos')
 			socket.on('connect', () => {
 				console.log('conectado')
-
+				setCanPass(false)
 				if (gameSession.room !== '') {
-					socket.emit('verify-sesion', gameSession.room, (actualSession) => {
-						console.log('verifica sala', actualSession)
-						if (!actualSession) {
+					socket.emit('verify-sesion', gameSession.room, (found, session) => {
+						console.log('verifica sala')
+						if (found) {
+							updateGameSession(session)
+						} else {
 							updateGameSession({
 								...initialGameSession,
 								status: 2
 							})
-						} else {
-							updateGameSession(actualSession)
 						}
 					})
 				} else {
-					updateGameSession({ status: 2 })
+					updateGameSession({
+						...initialGameSession,
+						status: 2
+					})
 				}
 
-				socket.on('user-provide-name', (studentList) => {
+				socket.on('user-provide-name', (list) => {
 					updateGameSession({
-						students: studentList
+						waiting: list
 					})
 				})
 			})

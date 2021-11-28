@@ -5,7 +5,8 @@ export default function WaitingClassmates() {
 
 	return (
 		<div>
-			Espera un momento...
+			{gameSession.user.id} 
+			<div>Espera un momento...</div>
 			<ul>
 				{gameSession.students.map(s => {
 					return (

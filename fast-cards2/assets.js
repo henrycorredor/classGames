@@ -6,21 +6,37 @@ Server game session object
 			socket: string,
 			status: 1
 		},
+		waiting: [
+			{
+				id: string,
+				name: string,
+				socket: string
+			}
+		],
 		students:[
 			{
 				id: string,
 				name: string,
 				socket: string,
 				online: true,
-				approved: true,
 				rol: 'student'
 				status: 1
 			}
 		]
 }
 
+Cards deck instance
+{
+	fullDeck: Array[10],
+	randomSelection: Array[4],
+	rightAnswer: Number,
+	clicked: [{id: string, }],
+	points: Number
+}
 
+*/
 
+/*
 Player states
 1 - Connecting
 			- connected
@@ -39,6 +55,7 @@ Student game session object
 	game:{
 		room: 28736,
 		status: 1
+
 	},
 	user: {
 		id: string,
@@ -50,7 +67,13 @@ Student game session object
 		name: string,
 		online: true,
 		rol: 'student'
-	]
+	],
+	cardsDeck: {
+		randomSelection: [Array 4],
+		rightAnswer: Number,
+		clicked: [Array] //[{id: String, selection: number}],
+		points: Number
+	}
 }
 
 
@@ -75,7 +98,13 @@ Master object
 		name: string,
 		online: true,
 		rol: 'student',
-		approved: false
+	],
+	waiting: [
+		{
+			id: string,
+			name: string,
+			socket: string
+		}
 	]
 }
 */

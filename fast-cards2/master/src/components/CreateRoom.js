@@ -7,7 +7,6 @@ export default function CreateRoom() {
 
 	function createRoom() {
 		socket.emit('create-room', (roomNumber) => {
-			console.log('responde, numero de sala ' + roomNumber)
 			updateGameSession({ room: roomNumber, status: 3 })
 		})
 	}

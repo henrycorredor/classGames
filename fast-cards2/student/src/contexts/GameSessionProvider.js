@@ -18,7 +18,13 @@ const initialState = {
 		name: '',
 		rol: 'student'
 	},
-	students: []
+	students: [],
+	cardsDeck: {
+		randomSelection: [],
+		rightAnswer: '',
+		clicked: [],
+		points: ''
+	}
 }
 
 /*
@@ -40,13 +46,16 @@ export function GameSessionProvider({ children }) {
 	useEffect(() => {
 		if (socket !== '' && canPass) {
 			setCanPass(false)
-			console.log('se setea los listeners')
 			socket.on('connect', () => {
 				updateGameSession({ game: { status: 2 } })
-
+				console.log('reconecta')
 				if (gameSession.game.room !== '') {
-					socket.emit('verify-room', gameSession.game.room, gameSession.user.id, (actualStatus) => {
-						if (!actualStatus) {
+					console.log('verifica')
+					socket.emit('verify-room', gameSession.game.room, gameSession.user.id, (sessionFound, actualStatus) => {
+						console.log(actualStatus)
+						if (sessionFound) {
+							updateGameSession(actualStatus)
+						} else {
 							updateGameSession({
 								...initialState,
 								game: {
@@ -54,10 +63,10 @@ export function GameSessionProvider({ children }) {
 									status: 2
 								}
 							})
-						} else {
-							updateGameSession(actualStatus)
 						}
 					})
+				}else{
+					console.log('no verifica')
 				}
 			})
 
@@ -70,13 +79,26 @@ export function GameSessionProvider({ children }) {
 			})
 
 			socket.on('update-students-list', (studentsList) => {
-				console.log('actualiza lista')
-				updateGameSession({ students: studentsList })
+				console.log(gameSession)
+				console.log('esta es mi id', gameSession.user.id)
+				if (studentsList.some(s => (s.rol === 'teacher' && s.id === gameSession.user.id))) {
+					console.log('se vuelve teacher')
+					updateGameSession({ user: { rol: 'teacher' }, students: studentsList })
+				} else {
+					console.log('no señor')
+					updateGameSession({ students: studentsList })
+				}
 			})
 
-			socket.on('start-game', () => {
-				updateGameSession({ game: { status: 5 } })
+			socket.on('start-game', (newCardsDeck) => {
+				updateGameSession({ game: { status: 5 }, cardsDeck: { ...newCardsDeck } })
 			})
+
+			socket.on('update-cards-deck', (cardsDeck) => {
+				console.log('nuevo deck')
+				updateGameSession({ cardsDeck })
+			})
+
 		}
 	}, [
 		socket,
