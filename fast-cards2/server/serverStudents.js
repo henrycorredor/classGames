@@ -90,7 +90,7 @@ module.exports = function (io, gameSessions, gameInstances) {
 							game: { status: (student) ? student.status : (waiting.name === '') ? 3 : 4 },
 							user: {
 								name: (student) ? student.name : waiting.name,
-								rol: (student) ? student.rol : 'student'
+								rol: (student) ? student.rol : 'student',
 							},
 							students: studentsListToClient(),
 							cardsDeck: getCardsDeck()
@@ -105,23 +105,27 @@ module.exports = function (io, gameSessions, gameInstances) {
 		})
 
 		socket.on('register-name', (studentName, cb) => {
-			console.log('intenta registrar nombre')
 			const student = getWaitingStudent(myId)
-			console.log(student)
 			student.name = studentName
 			const master = session.master.socket
-			console.log('envia anuncio al master: ' + master)
 			io.of('/master').to(master).emit('user-provide-name', session.waiting.filter(s => s.name !== ''))
 			cb(true)
 		})
 
 		socket.on('hit-card', (userId, cardIndex) => {
-			gameInstances[room].hitCard(userId, cardIndex)
-			const cardDeck = gameInstances[room].cardDeck()
-			console.log('alguien dio clic')
-			console.log(cardDeck.clicked)
-			console.log(userId)
-			io.of('/student').to(room).emit('update-cards-deck', cardDeck)
+			const cards = gameInstances[room]
+			cards.hitCard(userId, cardIndex)
+			if (cards.clicked.length === session.students.length - 1) {
+				if (cards.clicked.every(s => s.selection === cards.rightAnswer)) {
+					++cards.points
+				}
+			}
+			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].cardDeck())
+		})
+
+		socket.on('next-round', (cb) => {
+			cb(gameInstances[room].setNewTurn())
+			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].cardDeck())
 		})
 	})
 }

@@ -5,7 +5,7 @@ import { useGameContext } from '../contexts/GameSessionProvider'
 export default function InputRoomNumber() {
 	const [warning, setWarning] = useState()
 	const [roomNumber, setRoomNumber] = useState('')
-	const { updateGameSession } = useGameContext()
+	const { updateGameSession, gameSession } = useGameContext()
 	const socket = useSocket()
 
 	function handleChange(e) {
@@ -17,11 +17,12 @@ export default function InputRoomNumber() {
 		e.preventDefault()
 		socket.emit('join-room', roomNumber, (ok, newId) => {
 			if (ok) {
-				console.log('mi nueva ID es '+newId)
+				console.log('mi nueva ID es ' + newId)
 				updateGameSession({
 					game: { room: roomNumber, status: 3 },
 					user: { id: newId }
 				})
+				console.log(gameSession)
 			} else {
 				setRoomNumber('')
 				setWarning(newId)

@@ -23,7 +23,9 @@ class gameControls {
 
 		return {
 			randomSelection: this.randomSelection,
-			rightAnswer: this.rightAnswer
+			rightAnswer: this.rightAnswer,
+			clicked: this.clicked,
+			points: this.points
 		}
 	}
 

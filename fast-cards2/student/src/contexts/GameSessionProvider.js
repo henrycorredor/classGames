@@ -27,16 +27,6 @@ const initialState = {
 	}
 }
 
-/*
-	students array schema
-	{
-		id: string,
-		name: string,
-		online: true,
-		rol: 'student'
-	}
-*/
-
 export function GameSessionProvider({ children }) {
 	const [gameSession, setGameSession] = useLocalStorage('game-session', initialState)
 	const updateGameSession = useUpdateSession(setGameSession)
@@ -44,15 +34,44 @@ export function GameSessionProvider({ children }) {
 	const socket = useSocket()
 
 	useEffect(() => {
-		if (socket !== '' && canPass) {
+		if (socket !== '') {
 			setCanPass(false)
+			if (canPass) {
+				socket.on('disconnect', () => {
+					console.log('desconectado')
+				})
+
+				socket.on('name-approved', (approved) => {
+					if (approved) {
+						updateGameSession({ game: { status: 4 } })
+					} else {
+						updateGameSession({ user: { name: '' } })
+					}
+				})
+
+				socket.on('start-game', (newCardsDeck) => {
+					updateGameSession({ game: { status: 5 }, cardsDeck: { ...newCardsDeck } })
+				})
+
+				socket.on('update-cards-deck', (cardsDeck) => {
+					updateGameSession({ cardsDeck })
+				})
+			}
+		}
+	}, [
+		socket,
+		canPass,
+		updateGameSession
+	])
+
+	useEffect(() => {
+		if (socket !== '') {
+			const myRoom = gameSession.game.room
+			const myId = gameSession.user.id
+			socket.removeAllListeners('connect')
 			socket.on('connect', () => {
-				updateGameSession({ game: { status: 2 } })
-				console.log('reconecta')
-				if (gameSession.game.room !== '') {
-					console.log('verifica')
-					socket.emit('verify-room', gameSession.game.room, gameSession.user.id, (sessionFound, actualStatus) => {
-						console.log(actualStatus)
+				if (myRoom !== '') {
+					socket.emit('verify-room', myRoom, myId, (sessionFound, actualStatus) => {
 						if (sessionFound) {
 							updateGameSession(actualStatus)
 						} else {
@@ -65,46 +84,24 @@ export function GameSessionProvider({ children }) {
 							})
 						}
 					})
-				}else{
-					console.log('no verifica')
-				}
-			})
-
-			socket.on('name-approved', (approved) => {
-				if (approved) {
-					updateGameSession({ game: { status: 4 } })
 				} else {
-					updateGameSession({ user: { name: '' } })
+					updateGameSession({ game: { status: 2 } })
 				}
 			})
 
+			socket.removeAllListeners('update-students-list')
 			socket.on('update-students-list', (studentsList) => {
-				console.log(gameSession)
-				console.log('esta es mi id', gameSession.user.id)
-				if (studentsList.some(s => (s.rol === 'teacher' && s.id === gameSession.user.id))) {
-					console.log('se vuelve teacher')
+				if (studentsList.some(s => (s.rol === 'teacher' && s.id === myId))) {
 					updateGameSession({ user: { rol: 'teacher' }, students: studentsList })
 				} else {
-					console.log('no señor')
 					updateGameSession({ students: studentsList })
 				}
 			})
-
-			socket.on('start-game', (newCardsDeck) => {
-				updateGameSession({ game: { status: 5 }, cardsDeck: { ...newCardsDeck } })
-			})
-
-			socket.on('update-cards-deck', (cardsDeck) => {
-				console.log('nuevo deck')
-				updateGameSession({ cardsDeck })
-			})
-
 		}
 	}, [
 		socket,
-		canPass,
-		gameSession.game.room,
 		gameSession.user.id,
+		gameSession.game.room,
 		updateGameSession
 	])
 

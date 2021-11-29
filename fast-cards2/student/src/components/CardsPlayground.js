@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { useSocket } from '../contexts/SocketProvider'
-import { useGameContext } from "../contexts/GameSessionProvider"
-import useUpdateSession from "../hooks/useUpdateSession"
+import { useGameContext } from '../contexts/GameSessionProvider'
 
 /*
 game sub - status
@@ -10,9 +9,8 @@ game sub - status
 */
 
 export default function CardsPlayground() {
-	const { gameSession } = useGameContext()
+	const { gameSession, updateGameSession } = useGameContext()
 	const socket = useSocket()
-	const updateGameSession = useUpdateSession()
 	const [warning, setWarning] = useState('')
 	const [rounds, setRounds] = useState(1)
 	const hitted = useRef('')
@@ -25,8 +23,13 @@ export default function CardsPlayground() {
 		}
 	}
 
+	function nextRound() {
+		socket.emit('next-round', (newCardsDeck) => {
+			updateGameSession({ cardsDeck: newCardsDeck })
+		})
+	}
+
 	useEffect(() => {
-		console.log(cardsDeck.clicked.length, students.length)
 		if (cardsDeck.clicked.length === students.length - 1) {
 			if (cardsDeck.points === 10) {
 				updateGameSession({ game: { status: 6 } })
@@ -59,7 +62,7 @@ export default function CardsPlayground() {
 	} else {
 		cards = <div>
 			{cardsDeck.randomSelection[cardsDeck.rightAnswer]}
-			{(rounds === 2) && <button>¡Otra vez!</button>}
+			{(rounds === 2) && <button onClick={nextRound}>¡Otra vez!</button>}
 		</div>
 	}
 
