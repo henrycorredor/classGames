@@ -33,7 +33,7 @@ export default function WaitingStudents() {
 	}
 
 	function startGame() {
-		if (!gameSession.students.some(s => s.rol === 'teacher')) {
+		if (!gameSession.students.some(s => s.rol === 'teacher') && !gameSession.settings.teachersTakeTurns) {
 			setWarning('No has seleccionado profesor')
 		} else if (gameSession.students.length < 2) {
 			setWarning('Necesitamos mínimo un profesor y un estudiante')
@@ -44,6 +44,13 @@ export default function WaitingStudents() {
 				updateGameSession({ status: 4 })
 			})
 		}
+	}
+
+	function IAmTeacherButton(id) {
+		const noTeachers = gameSession.students.some(s => s.rol === 'teacher')
+		return (!gameSession.settings.teachersTakeTurns && !noTeachers)
+			? <button onClick={() => { imTeacher(id) }}>Soy profesor</button>
+			: ''
 	}
 
 	return (
@@ -68,10 +75,7 @@ export default function WaitingStudents() {
 						<li key={s.id}>
 							{s.name}
 							{(s.rol === 'teacher') ? ' - soy profe' : null}
-							{(gameSession.students.some(s => s.rol === 'teacher')) ?
-								null :
-								<button onClick={() => { imTeacher(s.id) }}>Soy profesor</button>
-							}
+							{IAmTeacherButton(s.id)}
 						</li>
 					)
 				})}

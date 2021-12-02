@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSocket } from '../contexts/SocketProvider'
 import { useGameContext } from '../contexts/GameSessionProvider'
+import './styles/InputRoomNumber.css'
 
 export default function InputRoomNumber() {
 	const [warning, setWarning] = useState()
@@ -31,15 +32,25 @@ export default function InputRoomNumber() {
 		})
 	}
 
+	function warningDiv(){
+		const warningClass = warning ? 'warning-on' : 'warning-off'
+		return <div className={warningClass}> {(warning) ? {warning} : 'nalgas'} </div>
+	}
+
 	return (
-		<div>
+		<div className='one-input-form'>
+			{warningDiv()}
 			<form onSubmit={handleSubmit}>
-				<label>
-					Número de sala: <input type='text' onChange={handleChange} value={roomNumber} />
-				</label>
-				<button type='submit'>Entrar</button>
+				<input
+					className='it3'
+					placeholder='Número de sala'
+					autoFocus
+					type='text'
+					onChange={handleChange}
+					value={roomNumber}
+				/>
+				<button className='b3' type='submit'>Entrar</button>
 			</form>
-			{(warning) ? <div>{warning}</div> : null}
 		</div>
 	)
 }

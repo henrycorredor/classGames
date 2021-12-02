@@ -7,6 +7,8 @@ export default function CreateRoom() {
 	const { gameSession, updateGameSession } = useGameSession()
 	const [form, setForm] = useState(gameSession.settings)
 
+	console.log(gameSession)
+
 	function createRoom() {
 		gameSession.settings = form
 		console.log(form)

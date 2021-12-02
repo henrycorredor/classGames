@@ -50,20 +50,22 @@ export default function CardsPlayground() {
 		updateGameSession
 	])
 
-	let cards
-	if (user.rol === 'student') {
-		cards = cardsDeck.randomSelection.map((c, i) => (
-			<div onClick={() => hitCard(i)} key={i}>
-				{c}
-				{cardsDeck.clicked.some(c => c.id === user.id && c.selection === i) && ' - seleccionado'}
-			</div>
-		))
-	} else {
-		cards = (
-			<div>{cardsDeck.randomSelection[cardsDeck.rightAnswer]} <br />
-				{cardsDeck.gameState === 2 && <button onClick={nextRound}>Otra vez</button>}
-			</div>
-		)
+	function cards() {
+		console.log('refresca baraja, mi rol ', user.rol)
+		if (user.rol === 'student') {
+			return cardsDeck.randomSelection.map((c, i) => (
+				<div onClick={() => hitCard(i)} key={i}>
+					{c}
+					{cardsDeck.clicked.some(c => c.id === user.id && c.selection === i) && ' - seleccionado'}
+				</div>
+			))
+		} else {
+			return (
+				<div>{cardsDeck.randomSelection[cardsDeck.rightAnswer]} <br />
+					{cardsDeck.gameState === 2 && <button onClick={nextRound}>Otra vez</button>}
+				</div>
+			)
+		}
 	}
 
 	function studentsSelections(studentId) {
@@ -80,21 +82,34 @@ export default function CardsPlayground() {
 		}
 	}
 
+	function amIFirst(id) {
+		if (settings.showWhoIsFirst) {
+			const firstRight = cardsDeck.clicked.findIndex(s => s.isRight)
+			console.log('se puede mostrar el primero', firstRight)
+			if (firstRight >= 0) {
+				const firstRightId = cardsDeck.clicked[firstRight].id
+				if (firstRightId === id) return ' - ¡Primero!'
+			}
+		}
+		return ''
+	}
+
 	return (
-		<div>
+		<div className='d-flex flex-column justify-content-between h-100 align-items-center'>
 			<div>Puntos: {cardsDeck.points}</div>
 			<div>
-				{cards}
+				{cards()}
 			</div>
 			{(warning) && <div>{warning}</div>}
-			<ul>
+			<div className=''>
 				{students.map((s) => (
 					s.rol === 'student' &&
-					<li key={s.id}>
+					<div key={s.id}>
 						{s.name}
 						{studentsSelections(s.id)}
-					</li>))}
-			</ul>
+						{amIFirst(s.id)}
+					</div>))}
+			</div>
 		</div>
 	)
 }

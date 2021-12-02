@@ -34,7 +34,6 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 
 		socket.on('create-room', (settings, cb) => {
 			console.log('crea sala')
-			console.log(settings)
 			//roomNumber = Math.floor(Math.random() * 90000) + 10000
 			roomNumber = Math.floor(Math.random() * 90) + 10
 			room = 'room-' + roomNumber
@@ -102,6 +101,15 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 		})
 
 		socket.on('start-game', (cb) => {
+			if (session.settings.teachersTakeTurns) {
+				console.log('se asigna un profesor')
+				let index = session.students.findIndex(s => s.rol === 'teacher')
+				index += 1
+				if (index === session.students.length) index = 0
+				session.students.forEach(s => s.rol = 'student')
+				session.students[index].rol = 'teacher'
+				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
+			}
 			session.students.map(s => { s.status = 5 })
 			const deckInstance = new gameControlClass()
 			gameInstances[room] = deckInstance

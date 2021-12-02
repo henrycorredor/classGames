@@ -58,11 +58,11 @@ module.exports = function (io, gameSessions, gameInstances) {
 				session.waiting.push({
 					id: myId,
 					name: '',
-					socket: socket.id
+					socket: socket.id,
+					status: 2
 				})
 				socket.join(room)
 				cb(true, myId, session.settings)
-				console.log(session.settings)
 			} else {
 				cb(false, 'Sala inexistente')
 			}
@@ -88,7 +88,7 @@ module.exports = function (io, gameSessions, gameInstances) {
 					cb(
 						true,
 						{
-							game: { status: (student) ? student.status : (waiting.name === '') ? 3 : 4 },
+							game: { status: (student) ? student.status : waiting.status },
 							user: {
 								name: (student) ? student.name : waiting.name,
 								rol: (student) ? student.rol : 'student',
@@ -108,6 +108,7 @@ module.exports = function (io, gameSessions, gameInstances) {
 		socket.on('register-name', (studentName, cb) => {
 			const student = getWaitingStudent(myId)
 			student.name = studentName
+			student.status = 3
 			const master = session.master.socket
 			io.of('/master').to(master).emit('user-provide-name', session.waiting.filter(s => s.name !== ''))
 			cb(true)
@@ -128,6 +129,15 @@ module.exports = function (io, gameSessions, gameInstances) {
 		})
 
 		socket.on('next-round', (cb) => {
+			if (session.settings.teachersTakeTurns) {
+				console.log('se asigna un profesor')
+				let index = session.students.findIndex(s => s.rol === 'teacher')
+				index += 1
+				if (index === session.students.length) index = 0
+				session.students.forEach(s => s.rol = 'student')
+				session.students[index].rol = 'teacher'
+				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
+			}
 			gameInstances[room].gameState = 1
 			cb(gameInstances[room].setNewTurn())
 			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].cardDeck())

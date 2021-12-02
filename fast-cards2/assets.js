@@ -40,7 +40,7 @@ Cards deck instance
 	fullDeck: Array[10],
 	randomSelection: Array[4],
 	rightAnswer: Number,
-	clicked: [{id: string, selection: number}],
+	clicked: [{id: String, selection: Number, isRight: Boolean}],
 	points: Number,
 	gameState: 1
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSocket } from '../contexts/SocketProvider'
 import { useGameContext } from '../contexts/GameSessionProvider'
+import './styles/InputName.css'
 
 export default function InputName() {
 	const [studentName, setStudentName] = useState('')
@@ -21,18 +22,28 @@ export default function InputName() {
 
 	if (gameSession.user.name === '') {
 		return (
-			<div>
+			<div className='col-4 text-center'>
 				<form onSubmit={handleSubmit}>
-					<label>
-						Tu nombre:
-						<input type='text' onChange={handleChange} value={studentName} />
-					</label>
-					<button>Registrar</button>
+					<input
+						className='form-control text-center'
+						type='text'
+						placeholder='Tu nombre'
+						autoFocus
+						onChange={handleChange}
+						value={studentName}
+					/>
+					<button
+						className='waitinglist-name'
+						type='submit'
+					>Registrar</button>
 				</form>
-				{gameSession.user.id}
 			</div>
 		)
 	} else {
-		return <div>Espera un momento que el profe te apruebe... <br />{gameSession.user.id}</div>
+		return (
+			<div>
+				<p className="text-center"><strong>Espera un momento que el profe te apruebe...</strong></p>
+			</div>
+		)
 	}
 }

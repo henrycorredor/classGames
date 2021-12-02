@@ -102,8 +102,9 @@ export function GameSessionProvider({ children }) {
 
 			socket.removeAllListeners('update-students-list')
 			socket.on('update-students-list', (studentsList) => {
-				if (studentsList.some(s => (s.rol === 'teacher' && s.id === myId))) {
-					updateGameSession({ user: { rol: 'teacher' }, students: studentsList })
+				const myRol = studentsList.filter(s => s.id === myId)
+				if (myRol[0]) {
+					updateGameSession({ user: { rol: myRol[0].rol }, students: studentsList })
 				} else {
 					updateGameSession({ students: studentsList })
 				}
