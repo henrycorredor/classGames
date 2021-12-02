@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useSocket } from '../contexts/SocketProvider'
 import { useGameContext } from '../contexts/GameSessionProvider'
 
@@ -12,14 +12,11 @@ export default function CardsPlayground() {
 	const { gameSession, updateGameSession } = useGameContext()
 	const socket = useSocket()
 	const [warning, setWarning] = useState('')
-	const [rounds, setRounds] = useState(1)
-	const hitted = useRef('')
-	const { cardsDeck, students, user } = gameSession
+	const { cardsDeck, students, user, settings } = gameSession
 
 	function hitCard(index) {
-		if (cardsDeck.clicked.every(c => c.id !== user.id) && hitted.current === '') {
+		if (cardsDeck.clicked.every(c => c.id !== user.id)) {
 			socket.emit('hit-card', user.id, index)
-			hitted.current = index
 		}
 	}
 
@@ -30,56 +27,73 @@ export default function CardsPlayground() {
 	}
 
 	useEffect(() => {
-		if (cardsDeck.clicked.length === students.length - 1) {
-			if (cardsDeck.points === 10) {
-				updateGameSession({ game: { status: 6 } })
-			} else {
+		console.log('estado: ', cardsDeck.gameState)
+		switch (cardsDeck.gameState) {
+			case 1:
+				setWarning('')
+				break
+			case 2:
 				if (cardsDeck.clicked.every(c => c.selection === cardsDeck.rightAnswer)) {
 					setWarning('¡Perfecto!')
 				} else {
-					setWarning('Oh oh... alguien seleccionó uno incorrecto')
+					setWarning('Oh oh... alguien seleccionó incorrectamente')
 				}
-				setRounds(2)
-			}
-		} else {
-			setWarning('')
-			setRounds(2)
+				break
+			case 3:
+				updateGameSession({ game: { status: 6 } })
+				break
+			default:
+				setWarning('oh oh... algo ha salido mal')
 		}
-	}, [cardsDeck, students, updateGameSession])
+	}, [
+		cardsDeck,
+		updateGameSession
+	])
 
-	let cards = ''
+	let cards
 	if (user.rol === 'student') {
-		cards = <ul>
-			{cardsDeck.randomSelection.map((c, i) => {
-				return (
-					<li key={i} onClick={() => hitCard(i)}>
-						{c}
-						{(i === hitted.current) && ' - seleccionado'}
-					</li>
-				)
-			})}
-		</ul>
+		cards = cardsDeck.randomSelection.map((c, i) => (
+			<div onClick={() => hitCard(i)} key={i}>
+				{c}
+				{cardsDeck.clicked.some(c => c.id === user.id && c.selection === i) && ' - seleccionado'}
+			</div>
+		))
 	} else {
-		cards = <div>
-			{cardsDeck.randomSelection[cardsDeck.rightAnswer]}
-			{(rounds === 2) && <button onClick={nextRound}>¡Otra vez!</button>}
-		</div>
+		cards = (
+			<div>{cardsDeck.randomSelection[cardsDeck.rightAnswer]} <br />
+				{cardsDeck.gameState === 2 && <button onClick={nextRound}>Otra vez</button>}
+			</div>
+		)
+	}
+
+	function studentsSelections(studentId) {
+		const mySelection = cardsDeck.clicked.filter(c => c.id === studentId)
+		const isRight = mySelection[0] ? mySelection[0].selection === cardsDeck.rightAnswer : null
+		if (cardsDeck.gameState === 1) {
+			return mySelection[0] ? ' - seleccionado' : null
+		} else {
+			if (settings.showStudentChoises) {
+				return isRight ? ' - correcto' : ' - incorrecto'
+			} else {
+				return ' - seleccionado'
+			}
+		}
 	}
 
 	return (
 		<div>
 			<div>Puntos: {cardsDeck.points}</div>
-			{cards}
+			<div>
+				{cards}
+			</div>
 			{(warning) && <div>{warning}</div>}
 			<ul>
-				{students.map(s => {
-					return (
-						<li key={s.id}>
-							{s.name}
-							{(cardsDeck.clicked.some(c => c.id === s.id)) && ' - clicked'}
-						</li>
-					)
-				})}
+				{students.map((s) => (
+					s.rol === 'student' &&
+					<li key={s.id}>
+						{s.name}
+						{studentsSelections(s.id)}
+					</li>))}
 			</ul>
 		</div>
 	)

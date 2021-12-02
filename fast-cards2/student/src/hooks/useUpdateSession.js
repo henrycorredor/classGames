@@ -14,6 +14,10 @@ export default function useUpdateSession(setGameSession) {
 				students: [
 					...newObj.students
 				],
+				settings: {
+					...prevObj.settings,
+					...newObj.settings
+				},
 				cardsDeck: {
 					...prevObj.cardsDeck,
 					...newObj.cardsDeck

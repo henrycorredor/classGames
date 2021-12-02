@@ -1,7 +1,7 @@
 /*
 Server game session object
 {
-	room-4345:{
+	room-4345: {
 		master: {
 			socket: string,
 			status: 1
@@ -22,8 +22,18 @@ Server game session object
 				rol: 'student'
 				status: 1
 			}
-		]
+		],
+		settings: {
+			showStudentsName: Boolean, 			//default: true
+			maxPoints: Number,							//default: 10
+			showStudentChoises: Boolean,		//default: true
+			teachersTakeTurns: Boolean,			//default: false
+			showWhoIsFirst: Boolean					//default: true
+			timeLimit: Number								//default: 0
+		}
+	}
 }
+
 
 Cards deck instance
 {
@@ -31,7 +41,8 @@ Cards deck instance
 	randomSelection: Array[4],
 	rightAnswer: Number,
 	clicked: [{id: string, selection: number}],
-	points: Number
+	points: Number,
+	gameState: 1
 }
 
 */
@@ -71,8 +82,17 @@ Student game session object
 	cardsDeck: {
 		randomSelection: [Array 4],
 		rightAnswer: Number,
-		clicked: [Array] //[{id: String, selection: number}],
-		points: Number
+		clicked: [Array] //[{id: String, selection: number, isRight: Boolean}],
+		points: Number,
+		gameState: 0
+	},
+	setttings: {
+		showStudentsName: Boolean,
+		maxPoints: Number,	
+		showStudentChoises: Boolean,	
+		teachersTakeTurns: Boolean,	
+		showWhoIsFirst: Boolean	
+		timeLimit: Number
 	}
 }
 
@@ -105,6 +125,14 @@ Master object
 			name: string,
 			socket: string
 		}
-	]
+	],
+	settings: {
+		showStudentsName: Boolean, 			//default: true
+		maxPoints: Number,							//default: 10
+		showStudentChoises: Boolean,		//default: true
+		teachersTakeTurns: Boolean,			//default: false
+		showWhoIsFirst: Boolean					//default: true
+		timeLimit: Number								//default: 0
+	}
 }
 */

@@ -5,6 +5,7 @@ class gameControls {
 		this.rightAnswer = 0
 		this.clicked = []
 		this.points = 0
+		this.gameState = 1
 	}
 
 	setNewTurn() {
@@ -20,7 +21,9 @@ class gameControls {
 
 		this.randomSelection = randomSelect.map(index => this.fullDeck[index])
 		this.rightAnswer = rightAnswer
-
+		this.clicked = []
+		this.gameState = 1
+		
 		return {
 			randomSelection: this.randomSelection,
 			rightAnswer: this.rightAnswer,
@@ -31,7 +34,7 @@ class gameControls {
 
 	hitCard(userId, cardIndex) {
 		if (this.clicked.every(id => id !== userId))
-			this.clicked.push({ id: userId, selection: cardIndex })
+			this.clicked.push({ id: userId, selection: cardIndex, isRight: cardIndex === this.rightAnswer })
 	}
 
 	cardDeck() {
@@ -39,7 +42,8 @@ class gameControls {
 			randomSelection: this.randomSelection,
 			rightAnswer: this.rightAnswer,
 			clicked: this.clicked,
-			points: this.points
+			points: this.points,
+			gameState: this.gameState
 		}
 	}
 }

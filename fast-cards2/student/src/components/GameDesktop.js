@@ -19,7 +19,7 @@ export default function GameDesktop() {
 		case 5:
 			return <CardsPlayground />
 		case 6:
-			return
+			return <div>Muy bien :D</div>
 		default:
 			return <div>Oops...</div>
 	}

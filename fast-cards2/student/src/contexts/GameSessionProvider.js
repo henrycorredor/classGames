@@ -23,7 +23,16 @@ const initialState = {
 		randomSelection: [],
 		rightAnswer: '',
 		clicked: [],
-		points: ''
+		points: '',
+		gameState: 1
+	},
+	settings: {
+		showStudentsName: true,
+		maxPoints: 10,
+		showStudentChoises: true,
+		teachersTakeTurns: false,
+		showWhoIsFirst: true,
+		timeLimit: 0
 	}
 }
 
@@ -50,10 +59,12 @@ export function GameSessionProvider({ children }) {
 				})
 
 				socket.on('start-game', (newCardsDeck) => {
+					console.log(newCardsDeck)
 					updateGameSession({ game: { status: 5 }, cardsDeck: { ...newCardsDeck } })
 				})
 
 				socket.on('update-cards-deck', (cardsDeck) => {
+					console.log('update cards')
 					updateGameSession({ cardsDeck })
 				})
 			}

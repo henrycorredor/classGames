@@ -13,18 +13,16 @@ const initialGameSession = {
 	room: '',
 	status: 1,
 	students: [],
-	waiting: []
+	waiting: [],
+	settings: {
+		showStudentsName: true,
+		maxPoints: 10,
+		showStudentChoises: true,
+		teachersTakeTurns: false,
+		showWhoIsFirst: true,
+		timeLimit: 0
+	}
 }
-
-/*
-students array schema:
-{
-	id: string,
-	name: string,
-	online: true,
-	rol: 'student'
-}
-*/
 
 export function GameSessionProvider({ children }) {
 	const [gameSession, setGameSession] = useLocalStorage('game-session', initialGameSession)

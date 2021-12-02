@@ -61,7 +61,8 @@ module.exports = function (io, gameSessions, gameInstances) {
 					socket: socket.id
 				})
 				socket.join(room)
-				cb(true, myId)
+				cb(true, myId, session.settings)
+				console.log(session.settings)
 			} else {
 				cb(false, 'Sala inexistente')
 			}
@@ -115,15 +116,19 @@ module.exports = function (io, gameSessions, gameInstances) {
 		socket.on('hit-card', (userId, cardIndex) => {
 			const cards = gameInstances[room]
 			cards.hitCard(userId, cardIndex)
+
 			if (cards.clicked.length === session.students.length - 1) {
+				cards.gameState = 2
 				if (cards.clicked.every(s => s.selection === cards.rightAnswer)) {
 					++cards.points
+					if (cards.points === Number(session.settings.maxPoints)) cards.gameState = 3
 				}
 			}
 			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].cardDeck())
 		})
 
 		socket.on('next-round', (cb) => {
+			gameInstances[room].gameState = 1
 			cb(gameInstances[room].setNewTurn())
 			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].cardDeck())
 		})

@@ -32,9 +32,11 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 			console.log('master desconectado')
 		})
 
-		socket.on('create-room', (cb) => {
+		socket.on('create-room', (settings, cb) => {
 			console.log('crea sala')
-			roomNumber = Math.floor(Math.random() * 90000) + 10000
+			console.log(settings)
+			//roomNumber = Math.floor(Math.random() * 90000) + 10000
+			roomNumber = Math.floor(Math.random() * 90) + 10
 			room = 'room-' + roomNumber
 			gameSessions[room] = {
 				master: {
@@ -42,7 +44,8 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 					status: 3
 				},
 				waiting: [],
-				students: []
+				students: [],
+				settings: settings
 			}
 			session = gameSessions[room]
 			cb(roomNumber)
