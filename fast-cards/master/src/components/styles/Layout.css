@@ -1,0 +1,92 @@
+@font-face {
+  font-family: Ubuntu;
+  src: url(./fonts/Ubuntu-Regular.ttf);
+}
+
+@font-face {
+  font-family: Ubuntu;
+  src: url(./fonts/Ubuntu-Bold.ttf);
+	font-weight: 700;
+}
+
+.container{
+	width: 100vw;
+	height: 100vh;
+	background: linear-gradient(337deg, rgba(126,8,255,1) 0%, rgba(46,7,73,1) 100%);
+	font-family: 'Ubuntu', sans-serif;
+	color: #743a00;
+}
+
+.master-main-room{
+	max-width: 760px;
+	margin: 0 auto;
+	padding-top: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+button.b3{
+	background: transparent url(./images/b_3.png);
+	height: 83px;
+	width: 218px;
+	border: none;
+	font-weight: 700;
+	font-size: xx-large;
+	color: #c46200;
+	text-shadow: #fff396 -1px -1px 1px;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.settings-form{
+	background-color: #fff0bf;
+	border: #ffbc2b 8px solid;
+	border-radius: 20px;
+	padding: 10px 20px;
+	margin-top: 20px;
+	box-shadow: #ff6308 2px 3px 0px;
+}
+
+.settings-form div{
+	margin-bottom: 18px;
+}
+
+input{
+	margin-left: 5px;
+}
+
+input[type='text']{
+	width: 70px;
+	height: 30px;
+	text-align: center;
+	font-weight: 700;
+	font-size: 1em;
+	border: rgba(0, 0, 0, 0.301) solid 1px;
+	border-radius: 8px;
+	outline: none;
+	transition: 70ms;
+	color: gray;
+}
+
+input[type='text']:focus{
+	border: rgba(0, 0, 0, 0.301) solid 3px;
+	transition: 80ms;
+	color: black;
+}
+
+.settings-form div:last-child{
+	margin-bottom: 0;
+}
+
+.small-board{
+	background: url('./images/small_board.png');
+	width: 244px;
+	height: 123px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 3em;
+	font-weight: 700;
+	color: honeydew;
+}

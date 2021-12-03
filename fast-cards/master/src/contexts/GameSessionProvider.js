@@ -1,7 +1,7 @@
-import { createContext, useContext, useCallback, useEffect, useState } from 'react'
-import useLocalStorage from '../hooks/useLocalStorage'
-import useUpdateSession from '../hooks/useUpdateSession'
-import { useSocket } from './SocketProvider'
+import { useContext, createContext, useEffect, useState } from "react"
+import useUpdateGameSession from "../hooks/useUpdateGameSession"
+import useLocalStorage from "../hooks/useLocalStorage"
+import { useSocket } from "./SocketProvider"
 
 const GameSessionContext = createContext()
 
@@ -10,68 +10,67 @@ export function useGameSession() {
 }
 
 const initialGameSession = {
-	masterId: '',
-	roomNumber: '',
-	students: []
+	room: '',
+	status: 1,
+	students: [],
+	waiting: [],
+	settings: {
+		showStudentsName: true,
+		maxPoints: 10,
+		showStudentChoises: true,
+		teachersTakeTurns: false,
+		showWhoIsFirst: true,
+		timeLimit: 0
+	}
 }
 
 export function GameSessionProvider({ children }) {
-	const socket = useSocket()
-	const [canPass, setCanPass] = useState(true)
 	const [gameSession, setGameSession] = useLocalStorage('game-session', initialGameSession)
-	const updateSession = useUpdateSession(setGameSession)
-
-	const createRoom = useCallback(() => {
-		if (socket !== '') {
-			socket.emit('create-room', (masterId, roomNumber, students) => {
-				setGameSession({ masterId, roomNumber, students })
-			})
-		}
-	}, [socket, setGameSession])
-
-	const verifyRoom = useCallback(() => {
-		console.log('verifica')
-		if (gameSession.roomNumber !== '') {
-			socket.emit('verify-room', gameSession.roomNumber, (notFound, students) => {
-				if (notFound) {
-					setGameSession(initialGameSession)
-				} else {
-					updateSession({ students })
-				}
-			})
-		}
-	}, [
-		socket,
-		gameSession.roomNumber,
-		setGameSession,
-		updateSession])
+	const updateGameSession = useUpdateGameSession(setGameSession)
+	const [canPass, setCanPass] = useState(true)
+	const socket = useSocket()
 
 	useEffect(() => {
-		if (socket !== '') {
-			if (canPass) {
+		console.log('canPass', canPass, 'socket', (socket !== ''))
+		if (socket !== '' && canPass) {
+			console.log('se instauran los listeners basicos')
+			socket.on('connect', () => {
+				console.log('conectado')
 				setCanPass(false)
+				if (gameSession.room !== '') {
+					socket.emit('verify-sesion', gameSession.room, (found, session) => {
+						console.log('verifica sala')
+						if (found) {
+							updateGameSession(session)
+						} else {
+							updateGameSession({
+								...initialGameSession,
+								status: 2
+							})
+						}
+					})
+				} else {
+					updateGameSession({
+						...initialGameSession,
+						status: 2
+					})
+				}
 
-				socket.on('connect', () => {
-					console.log('conectado')
-					if (gameSession.roomNumber !== '') verifyRoom()
+				socket.on('user-provide-name', (list) => {
+					updateGameSession({
+						waiting: list
+					})
 				})
-
-				socket.on('new-student-registered', (incomeStudents) => {
-					console.log('actualiza sesion')
-					updateSession({ students: incomeStudents })
-				})
-			}
+			})
 		}
 	}, [
 		socket,
 		canPass,
-		verifyRoom,
-		gameSession,
-		updateSession
+		gameSession.room,
+		updateGameSession
 	])
-
 	return (
-		<GameSessionContext.Provider value={{ createRoom, updateSession, gameSession }}>
+		<GameSessionContext.Provider value={{ gameSession, updateGameSession }}>
 			{children}
 		</GameSessionContext.Provider>
 	)

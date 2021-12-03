@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import io from 'socket.io-client'
-
 const SocketContext = createContext()
 
 export function useSocket() {
@@ -12,17 +11,12 @@ export function SocketProvider({ children }) {
 
 	useEffect(() => {
 		if (socket === '') {
-			const newSocket = io('http://localhost:3000/master')
+			const newSocket = io('http://localhost:3000/student')
 			setSocket(newSocket)
 		}
 
 		return () => {
-			if (socket !== '') {
-				console.log('desconecta')
-				socket.close()
-			}else{
-				console.log('no desconecta')
-			}
+			if (socket !== '') socket.close()
 		}
 	}, [socket])
 
