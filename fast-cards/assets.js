@@ -4,7 +4,8 @@ Server game session object
 	room-4345: {
 		master: {
 			socket: string,
-			status: 1
+			status: 1,
+			online: true
 		},
 		waiting: [
 			{
@@ -66,7 +67,6 @@ Student game session object
 	game:{
 		room: 28736,
 		status: 1
-
 	},
 	user: {
 		id: string,

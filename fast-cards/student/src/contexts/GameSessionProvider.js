@@ -58,9 +58,12 @@ export function GameSessionProvider({ children }) {
 					}
 				})
 
-				socket.on('start-game', (newCardsDeck) => {
-					console.log(newCardsDeck)
-					updateGameSession({ game: { status: 5 }, cardsDeck: { ...newCardsDeck } })
+				socket.on('start-game', (newCardsDeck, settings) => {
+					updateGameSession({
+						game: { status: 5 },
+						cardsDeck: { ...newCardsDeck },
+						settings: { ...settings }
+					})
 				})
 
 				socket.on('update-cards-deck', (cardsDeck) => {

@@ -64,6 +64,7 @@ input.it3{
 	font-size:xx-large;
 	font-weight: 700;
 	transition: 0.3s;
+	outline: none;
 }
 
 input.it3:focus{
@@ -148,11 +149,4 @@ input.it3:focus{
 
 .student-list .student-name.no-name{
 	background-position: center 3px;
-}
-
-.game-over{
-	justify-content: center;
-	font-weight: 700;
-	font-style: normal;
-	font-size: xx-large;
 }

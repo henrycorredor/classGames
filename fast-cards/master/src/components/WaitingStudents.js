@@ -9,7 +9,7 @@ export default function WaitingStudents() {
 
 	function approve(id, approved) {
 		setWarning('')
-		socket.emit('approve-student', id, approved, (done, [waitingList, studentsList]) => {
+		socket.emit('approve-student', id, approved, (done, waitingList, studentsList) => {
 			if (done) {
 				updateGameSession({
 					students: studentsList,
@@ -40,7 +40,7 @@ export default function WaitingStudents() {
 		} else if (gameSession.waiting.length !== 0) {
 			setWarning('Hay usuarios por aprovar')
 		} else {
-			socket.emit('start-game', () => {
+			socket.emit('start-game', '', () => {
 				updateGameSession({ status: 4 })
 			})
 		}
@@ -56,9 +56,10 @@ export default function WaitingStudents() {
 	return (
 		<div className='master-main-room'>
 			<div className='small-board'>{gameSession.room}</div>
-			Esperando participantes...
 
-			<ul>
+			<div className='long-board'>Esperando participantes...</div>
+
+			<ul className='long-board'>
 				{gameSession.waiting.map(s => {
 					return (
 						<li key={s.id}>
@@ -69,7 +70,7 @@ export default function WaitingStudents() {
 					)
 				})}
 			</ul>
-			<ul>
+			<ul className='long-board'>
 				{gameSession.students.map(s => {
 					return (
 						<li key={s.id}>
@@ -80,8 +81,8 @@ export default function WaitingStudents() {
 					)
 				})}
 			</ul>
-			<button onClick={startGame}>Empezar juego</button>
-			{(warning !== '') && <div>{warning}</div>}
+			{(warning !== '') && <div className='long-board'>{warning}</div>}
+			<button className='b3' onClick={startGame}>Comenzar</button>
 		</div>
 	)
 }

@@ -3,6 +3,7 @@ import InputRoomNumber from './InputRoomNumber'
 import InputName from './InputName'
 import WaitingClassmates from './WaitingClassmates'
 import CardsPlayground from './CardsPlayground'
+import GameOver from './GameOver'
 
 export default function GameDesktop() {
 	const { gameSession } = useGameContext()
@@ -19,7 +20,7 @@ export default function GameDesktop() {
 		case 5:
 			return <CardsPlayground />
 		case 6:
-			return <div className='golden-board game-over'>¡¡Muy bien!!</div>
+			return <GameOver />
 		default:
 			return <div>Oops...</div>
 	}

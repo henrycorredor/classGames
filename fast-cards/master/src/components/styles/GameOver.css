@@ -1,0 +1,11 @@
+.game-over{
+	max-width: 400px;
+	margin: 0 auto;
+	text-align: center;
+	padding: 15px 10px;
+}
+
+.game-over .small-board{
+	margin: 0 auto 15px auto;
+	font-size:xx-large;
+}

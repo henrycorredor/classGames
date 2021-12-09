@@ -1,6 +1,6 @@
 const { nanoid } = require('nanoid')
 
-module.exports = function (io, gameSessions, gameInstances) {
+module.exports = function (io, gameSessions, gameInstances, userDropConection) {
 	const studentSocket = io.of('/student')
 
 	studentSocket.on('connect', (socket) => {
@@ -45,6 +45,27 @@ module.exports = function (io, gameSessions, gameInstances) {
 
 		socket.on('disconnect', () => {
 			console.log('estudiante desconectado')
+			if (room) {
+				userDropConection(room, myId)
+				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
+				const master = session.master.socket
+				const students = session.students.map(s => {
+					return {
+						id: s.id,
+						name: s.name,
+						online: s.online,
+						rol: s.rol
+					}
+				})
+				const waiting = session.waiting.map(s => {
+					return {
+						id: s.id,
+						name: s.name,
+						socket: s.socket
+					}
+				})
+				io.of('/master').to(master).emit('update-students', { students: students, waiting: waiting })
+			}
 		})
 
 		socket.on('join-room', (roomNumber, cb) => {
@@ -81,6 +102,7 @@ module.exports = function (io, gameSessions, gameInstances) {
 					myId = userId
 					if (student) {
 						student.socket = socket.id
+						student.online = true
 					} else {
 						waiting.socket = socket.id
 					}
@@ -122,7 +144,12 @@ module.exports = function (io, gameSessions, gameInstances) {
 				cards.gameState = 2
 				if (cards.clicked.every(s => s.selection === cards.rightAnswer)) {
 					++cards.points
-					if (cards.points === Number(session.settings.maxPoints)) cards.gameState = 3
+					if (cards.points === Number(session.settings.maxPoints)) {
+						cards.gameState = 3
+						session.students.forEach(s => s.status = 6)
+						session.master.status = 5
+						io.of('/master').to(session.master.socket).emit('game-over')
+					}
 				}
 			}
 			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].cardDeck())

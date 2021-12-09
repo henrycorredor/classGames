@@ -74,8 +74,8 @@ export default function CardsPlayground() {
 		} else {
 			return (
 				<>
-				<div className='card'>{cardsDeck.randomSelection[cardsDeck.rightAnswer]}</div>
-				{cardsDeck.gameState === 2 && <button onClick={nextRound} className='b3'>Otra vez</button>}
+					<div className='card'>{cardsDeck.randomSelection[cardsDeck.rightAnswer]}</div>
+					{cardsDeck.gameState === 2 && <button onClick={nextRound} className='b3'>Otra vez</button>}
 				</>
 			)
 		}
@@ -109,7 +109,7 @@ export default function CardsPlayground() {
 			}
 		}
 
-		if(!settings.showStudentsName){
+		if (!settings.showStudentsName) {
 			className += ' no-name'
 		}
 
@@ -120,6 +120,7 @@ export default function CardsPlayground() {
 		<div className='cards-playground'>
 			<div className='points-bar'>
 				<div className='points-level-bar' style={pointsBarStyle()}><span>Puntos: {cardsDeck.points}</span></div>
+				<div className='points-box'> {cardsDeck.points} / <span> {settings.maxPoints} </span> </div>
 			</div>
 			<div className='cards-box'>
 				{cards()}

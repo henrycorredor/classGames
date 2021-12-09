@@ -20,7 +20,8 @@ const initialGameSession = {
 		showStudentChoises: true,
 		teachersTakeTurns: false,
 		showWhoIsFirst: true,
-		timeLimit: 0
+		timeLimit: 0,
+		numberOfCardsOnBoard: 4
 	}
 }
 
@@ -31,9 +32,7 @@ export function GameSessionProvider({ children }) {
 	const socket = useSocket()
 
 	useEffect(() => {
-		console.log('canPass', canPass, 'socket', (socket !== ''))
 		if (socket !== '' && canPass) {
-			console.log('se instauran los listeners basicos')
 			socket.on('connect', () => {
 				console.log('conectado')
 				setCanPass(false)
@@ -60,6 +59,17 @@ export function GameSessionProvider({ children }) {
 					updateGameSession({
 						waiting: list
 					})
+				})
+
+				socket.on('update-students', (data) => {
+					updateGameSession({
+						students: data.students,
+						waiting: data.waiting
+					})
+				})
+
+				socket.on('game-over', () => {
+					updateGameSession({ status: 5 })
 				})
 			})
 		}

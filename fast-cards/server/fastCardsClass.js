@@ -1,34 +1,47 @@
 class gameControls {
-	constructor() {
+	constructor(numberOfCardsOnBoard = 4) {
 		this.fullDeck = ['carta 1', 'carta 2', 'carta 3', 'carta 4', 'carta 5', 'carta 6', 'carta 7', 'carta 8', 'carta 9', 'carta 10']
+		this.randomList = []
 		this.randomSelection = []
 		this.rightAnswer = 0
+		this.rightAnswers = []
 		this.clicked = []
 		this.points = 0
 		this.gameState = 1
+		this.cardsOnBoard = numberOfCardsOnBoard
+	}
+
+	setRandomSelection() {
+		do {
+			const randomNumber = Math.floor(Math.random() * 10)
+			if (!this.randomList.includes(randomNumber)) {
+				this.randomList.push(randomNumber)
+			}
+		} while (this.randomList.length !== this.fullDeck.length)
 	}
 
 	setNewTurn() {
-		const randomSelect = []
-		do {
-			const randomNumber = Math.floor(Math.random() * 10)
-			if (!randomSelect.includes(randomNumber)) {
-				randomSelect.push(randomNumber)
+		this.randomSelection = []
+		for (let i = 0; i < this.cardsOnBoard; i++) {
+			if (this.randomList.length === 0) {
+				this.setRandomSelection()
 			}
-		} while (randomSelect.length < 4)
+			const actualNum = this.randomList.pop()
+			this.randomSelection.push(this.fullDeck[actualNum])
+		}
 
-		const rightAnswer = Math.floor(Math.random() * 4)
+		const rightAnswer = Math.floor(Math.random() * this.cardsOnBoard)
 
-		this.randomSelection = randomSelect.map(index => this.fullDeck[index])
 		this.rightAnswer = rightAnswer
 		this.clicked = []
 		this.gameState = 1
-		
+
 		return {
 			randomSelection: this.randomSelection,
 			rightAnswer: this.rightAnswer,
 			clicked: this.clicked,
-			points: this.points
+			points: this.points,
+			gameState: this.gameState
 		}
 	}
 

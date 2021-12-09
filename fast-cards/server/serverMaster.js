@@ -1,4 +1,4 @@
-module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
+module.exports = function (io, gameSessions, gameInstances, fastCardsClass, userDropConection) {
 	const masterSocket = io.of('/master')
 
 	masterSocket.on('connect', (socket) => {
@@ -30,6 +30,9 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 
 		socket.on('disconnect', () => {
 			console.log('master desconectado')
+			if (room) {
+				userDropConection(room, 'master')
+			}
 		})
 
 		socket.on('create-room', (settings, cb) => {
@@ -40,7 +43,8 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 			gameSessions[room] = {
 				master: {
 					socket: socket.id,
-					status: 3
+					status: 3,
+					online: true
 				},
 				waiting: [],
 				students: [],
@@ -56,6 +60,7 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 				room = 'room-' + roomNumber
 				session = gameSessions['room-' + roomNumber]
 				session.master.socket = socket.id
+				session.master.online = true
 				cb(true,
 					{
 						status: session.master.status,
@@ -83,7 +88,7 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 					student.name = ''
 				}
 				io.of('/student').to(student.socket).emit('name-approved', approve)
-				cb(true, [session.waiting.filter(s => s.name !== ''), studentsListToClient()])
+				cb(true, session.waiting.filter(s => s.name !== ''), studentsListToClient())
 			} else {
 				cb(false)
 			}
@@ -100,7 +105,12 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 			}
 		})
 
-		socket.on('start-game', (cb) => {
+		socket.on('start-game', (settings, cb) => {
+			if (settings === '') {
+				settings = session.settings
+			} else {
+				session.settings = { ...settings }
+			}
 			if (session.settings.teachersTakeTurns) {
 				console.log('se asigna un profesor')
 				let index = session.students.findIndex(s => s.rol === 'teacher')
@@ -110,17 +120,22 @@ module.exports = function (io, gameSessions, gameInstances, gameControlClass) {
 				session.students[index].rol = 'teacher'
 				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
 			}
+			session.master.status = 4
 			session.students.map(s => { s.status = 5 })
-			const deckInstance = new gameControlClass()
+			const deckInstance = new fastCardsClass(settings.numberOfCardsOnBoard)
 			gameInstances[room] = deckInstance
 			io.of('/student').to(room).emit(
-				'start-game', deckInstance.setNewTurn()
+				'start-game', deckInstance.setNewTurn(), settings
 			)
 			cb()
 		})
 
-		socket.on('print', ()=>{
+		socket.on('print', () => {
 			console.log(gameSessions)
+			console.log('-------------')
+			console.log(gameSessions[room].students)
+			console.log('-----------')
+			console.log(gameSessions[room].waiting)
 		})
 	})
 }

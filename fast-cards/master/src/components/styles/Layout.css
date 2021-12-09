@@ -15,6 +15,7 @@
 	background: linear-gradient(337deg, rgba(126,8,255,1) 0%, rgba(46,7,73,1) 100%);
 	font-family: 'Ubuntu', sans-serif;
 	color: #743a00;
+	overflow: scroll;
 }
 
 .master-main-room{
@@ -49,7 +50,8 @@ button.b3{
 }
 
 .settings-form div{
-	margin-bottom: 18px;
+	margin-bottom: 13px;
+  height: 32px;
 }
 
 input{
@@ -89,4 +91,34 @@ input[type='text']:focus{
 	font-size: 3em;
 	font-weight: 700;
 	color: honeydew;
+}
+
+.long-board{
+	background-color: #ffbc2b;
+	border: #ff6308 5px solid;
+	box-shadow: #c46200 2px 3px 0;
+	padding: 15px;
+	margin-top: 10px;
+	border-radius: 15px;
+	color: #814100;
+}
+
+ul.long-board{
+	padding: 0 10px 10px 15px;
+}
+
+.long-board li{
+	margin: 10px 10px 0 20px;
+}
+
+.long-board button{
+	margin-left: 5px;
+}
+
+.center{
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -122px;
+	margin-top: -61px;
 }
