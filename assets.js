@@ -2,6 +2,7 @@
 Server game session object
 {
 	room-4345: {
+		game: string,
 		master: {
 			socket: string,
 			status: 1,
@@ -11,7 +12,9 @@ Server game session object
 			{
 				id: string,
 				name: string,
-				socket: string
+				socket: string,
+				status: number,
+				online: Boolean
 			}
 		],
 		students:[

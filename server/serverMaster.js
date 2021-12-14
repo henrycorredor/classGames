@@ -29,18 +29,17 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 		}
 
 		socket.on('disconnect', () => {
-			console.log('master desconectado')
 			if (room) {
 				userDropConection(room, 'master')
 			}
 		})
 
-		socket.on('create-room', (settings, cb) => {
-			console.log('crea sala')
+		socket.on('create-room', (gameName, settings, cb) => {
 			//roomNumber = Math.floor(Math.random() * 90000) + 10000
 			roomNumber = Math.floor(Math.random() * 90) + 10
 			room = 'room-' + roomNumber
 			gameSessions[room] = {
+				game: gameName,
 				master: {
 					socket: socket.id,
 					status: 3,
@@ -106,17 +105,10 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 		})
 
 		socket.on('start-game', (settings, cb) => {
-			console.log('inicia')
-			console.log(settings)
-			console.log('preloaded settings:')
-			console.log(session.settings)
 			if (settings !== '') {
-				console.log('se inicializan los settings')
-				console.log(settings)
 				session.settings = { ...settings }
 			}
 			if (session.settings.teachersTakeTurns) {
-				console.log('se asigna un profesor')
 				let index = session.students.findIndex(s => s.rol === 'teacher')
 				index += 1
 				if (index === session.students.length) index = 0
@@ -128,7 +120,6 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 			session.students.map(s => { s.status = 5 })
 			const deckInstance = new fastCardsClass(settings.numberOfCardsOnBoard)
 			gameInstances[room] = deckInstance
-			console.log('se manda el mensaje a todos para volver a empezar')
 			io.of('/student').to(room).emit(
 				'start-game', deckInstance.setNewTurn(), session.settings
 			)
@@ -136,11 +127,7 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 		})
 
 		socket.on('print', () => {
-			console.log(gameSessions)
-			console.log('-------------')
-			console.log(gameSessions[room].students)
-			console.log('-----------')
-			console.log(gameSessions[room].waiting)
+			console.log('miau')
 		})
 	})
 }

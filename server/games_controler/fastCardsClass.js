@@ -1,14 +1,17 @@
+import studentListener from './fastCardsSocketLilsteners'
+
 class gameControls {
-	constructor(numberOfCardsOnBoard = 4) {
+	constructor(numberOfCardsOnBoard = 4, studentSocket, masterSocket) {
 		this.fullDeck = ['01.png', '02.png', '03.png', '04.png', '05.png', '06.png', '07.png', '08.png', '09.png', '10.png']
 		this.randomList = []
 		this.randomSelection = []
 		this.rightAnswer = 0
-		this.rightAnswers = []
 		this.clicked = []
 		this.points = 0
 		this.gameState = 1
 		this.cardsOnBoard = Number(numberOfCardsOnBoard)
+
+		if(studentSocket) studentListener(studentSocket)
 	}
 
 	setRandomSelection() {
@@ -52,7 +55,7 @@ class gameControls {
 			this.clicked.push({ id: userId, selection: cardIndex, isRight: cardIndex === this.rightAnswer })
 	}
 
-	cardDeck() {
+	gameObj() {
 		return {
 			randomSelection: this.randomSelection,
 			rightAnswer: this.rightAnswer,

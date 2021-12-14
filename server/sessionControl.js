@@ -17,6 +17,5 @@ module.exports = function (classSessions, gameInstances) {
 			delete classSessions[roomNumber]
 			delete gameInstances[roomNumber]
 		}
-		console.log(classSessions)
 	}
 }

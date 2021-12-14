@@ -9,7 +9,7 @@ export default function CreateRoom() {
 	const [form, setForm] = useState(gameSession.settings)
 
 	function createRoom() {
-		socket.emit('create-room', form, (roomNumber) => {
+		socket.emit('create-room', 'fast-cards', form, (roomNumber) => {
 			updateGameSession({ room: roomNumber, status: 3, settings: { ...form } })
 		})
 	}
