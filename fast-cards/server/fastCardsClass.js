@@ -1,6 +1,6 @@
 class gameControls {
 	constructor(numberOfCardsOnBoard = 4) {
-		this.fullDeck = ['carta 1', 'carta 2', 'carta 3', 'carta 4', 'carta 5', 'carta 6', 'carta 7', 'carta 8', 'carta 9', 'carta 10']
+		this.fullDeck = ['01.png', '02.png', '03.png', '04.png', '05.png', '06.png', '07.png', '08.png', '09.png', '10.png']
 		this.randomList = []
 		this.randomSelection = []
 		this.rightAnswer = 0
@@ -8,7 +8,7 @@ class gameControls {
 		this.clicked = []
 		this.points = 0
 		this.gameState = 1
-		this.cardsOnBoard = numberOfCardsOnBoard
+		this.cardsOnBoard = Number(numberOfCardsOnBoard)
 	}
 
 	setRandomSelection() {
@@ -22,13 +22,15 @@ class gameControls {
 
 	setNewTurn() {
 		this.randomSelection = []
-		for (let i = 0; i < this.cardsOnBoard; i++) {
+		do {
 			if (this.randomList.length === 0) {
 				this.setRandomSelection()
 			}
 			const actualNum = this.randomList.pop()
-			this.randomSelection.push(this.fullDeck[actualNum])
-		}
+			if (!this.randomSelection.includes(this.fullDeck[actualNum])) {
+				this.randomSelection.push(this.fullDeck[actualNum])
+			}
+		} while (this.randomSelection.length !== this.cardsOnBoard)
 
 		const rightAnswer = Math.floor(Math.random() * this.cardsOnBoard)
 

@@ -33,9 +33,10 @@ export function GameSessionProvider({ children }) {
 
 	useEffect(() => {
 		if (socket !== '' && canPass) {
+			setCanPass(false)
+
 			socket.on('connect', () => {
 				console.log('conectado')
-				setCanPass(false)
 				if (gameSession.room !== '') {
 					socket.emit('verify-sesion', gameSession.room, (found, session) => {
 						console.log('verifica sala')
@@ -54,23 +55,23 @@ export function GameSessionProvider({ children }) {
 						status: 2
 					})
 				}
+			})
 
-				socket.on('user-provide-name', (list) => {
-					updateGameSession({
-						waiting: list
-					})
+			socket.on('user-provide-name', (list) => {
+				updateGameSession({
+					waiting: list
 				})
+			})
 
-				socket.on('update-students', (data) => {
-					updateGameSession({
-						students: data.students,
-						waiting: data.waiting
-					})
+			socket.on('update-students', (data) => {
+				updateGameSession({
+					students: data.students,
+					waiting: data.waiting
 				})
+			})
 
-				socket.on('game-over', () => {
-					updateGameSession({ status: 5 })
-				})
+			socket.on('game-over', () => {
+				updateGameSession({ status: 5 })
 			})
 		}
 	}, [

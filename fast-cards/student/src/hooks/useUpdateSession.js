@@ -1,6 +1,5 @@
 export default function useUpdateSession(setGameSession) {
 	return function (newObj) {
-		console.log('se actualiza sesion')
 		setGameSession(prevObj => {
 			newObj.students = (newObj.students) ? newObj.students : prevObj.students
 			return ({

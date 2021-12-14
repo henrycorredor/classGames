@@ -106,9 +106,13 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 		})
 
 		socket.on('start-game', (settings, cb) => {
-			if (settings === '') {
-				settings = session.settings
-			} else {
+			console.log('inicia')
+			console.log(settings)
+			console.log('preloaded settings:')
+			console.log(session.settings)
+			if (settings !== '') {
+				console.log('se inicializan los settings')
+				console.log(settings)
 				session.settings = { ...settings }
 			}
 			if (session.settings.teachersTakeTurns) {
@@ -124,8 +128,9 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 			session.students.map(s => { s.status = 5 })
 			const deckInstance = new fastCardsClass(settings.numberOfCardsOnBoard)
 			gameInstances[room] = deckInstance
+			console.log('se manda el mensaje a todos para volver a empezar')
 			io.of('/student').to(room).emit(
-				'start-game', deckInstance.setNewTurn(), settings
+				'start-game', deckInstance.setNewTurn(), session.settings
 			)
 			cb()
 		})

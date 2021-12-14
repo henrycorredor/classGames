@@ -139,7 +139,7 @@ module.exports = function (io, gameSessions, gameInstances, userDropConection) {
 		socket.on('hit-card', (userId, cardIndex) => {
 			const cards = gameInstances[room]
 			cards.hitCard(userId, cardIndex)
-
+			console.log('puntos para ganar', session.settings.maxPoints)
 			if (cards.clicked.length === session.students.length - 1) {
 				cards.gameState = 2
 				if (cards.clicked.every(s => s.selection === cards.rightAnswer)) {

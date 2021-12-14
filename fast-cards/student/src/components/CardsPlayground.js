@@ -62,19 +62,23 @@ export default function CardsPlayground() {
 				} else {
 					classTag += ' card-no-selected'
 				}
+				const picUrl = '../images/' + c
 				return (
 					<div
 						className={classTag}
 						onClick={() => hitCard(i)}
 						key={i}>
-						{c}
+						<img alt={'carta numero ' + i} src={picUrl} />
 					</div>
 				)
 			})
 		} else {
+			const picUrl = '/images/' + cardsDeck.randomSelection[cardsDeck.rightAnswer]
 			return (
 				<>
-					<div className='card'>{cardsDeck.randomSelection[cardsDeck.rightAnswer]}</div>
+					<div className='card'>
+						<img className="cardPic" alt="tarjeta maestra" src={picUrl} />
+					</div>
 					{cardsDeck.gameState === 2 && <button onClick={nextRound} className='b3'>Otra vez</button>}
 				</>
 			)
