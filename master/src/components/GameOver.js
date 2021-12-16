@@ -1,18 +1,18 @@
 import { useState } from "react"
-import { useGameSession } from "../contexts/GameSessionProvider"
+import { useGameState } from "../contexts/GameStateProvider"
 import { useSocket } from "../contexts/SocketProvider"
 import SettingsForm from "./SettingsForm"
 import './styles/GameOver.css'
 
 export default function GameOver() {
-	const { gameSession, updateGameSession } = useGameSession()
-	const [form, setForm] = useState(gameSession.settings)
+	const { gameState, updateGameState } = useGameState()
+	const [form, setForm] = useState(gameState.settings)
 	const socket = useSocket()
 
 	function handleSubmit() {
-		updateGameSession({ settings: { ...form } })
+		updateGameState({ settings: { ...form } })
 		socket.emit('start-game', form, () => {
-			updateGameSession({ status: 4 })
+			updateGameState({ status: 3 })
 		})
 	}
 

@@ -1,50 +1,89 @@
-export default function SettingsForm({ form, setForm }) {
+const labels = {
+	fastCards: {
+		needTeacher: 'Tomar turnos para ser profesor',
+		numberOfCardsOnBoard: 'Número de cartas',
+		maxPoints: 'Puntos para ganar',
+		showStudentsName: 'Mostrar nombres',
+		showStudentChoises: 'Mostrar si la selección es correcta o no',
+		showWhoIsFirst: 'Mostrar el primero de cada turno'
+	},
+	test: {
+		needTeacher: 'Probando'
+	}
+}
+
+export default function SettingsForm({ gamesList, gameOptions, setGameOptions }) {
+	console.log('renderiza el form')
 	function handelChange({ target }) {
-		setForm(val => {
+		setGameOptions(val => {
 			return {
 				...val,
-				[target.name]: target.type === 'checkbox' ? target.checked : target.value
+				settings: {
+					...val.settings,
+					[target.name]: target.type === 'checkbox' ? target.checked : target.value
+				}
+			}
+		})
+	}
+
+	function handleRadioChange({ target }) {
+		console.log('miau', target)
+		const index = gamesList.findIndex(g => g.id === target.value)
+		setGameOptions({ ...gamesList[index] })
+	}
+
+	function printInputs(settings) {
+		return Object.keys(settings).map((keyName, index) => {
+			const inputType = typeof settings[keyName] === 'boolean' ? 'checkbox' : 'text'
+
+			if (inputType === 'checkbox') {
+				return (
+					<div key={index}>
+						<label> {labels[gameOptions.id][keyName]}:
+							<input
+								checked={gameOptions.settings[keyName]}
+								onChange={handelChange}
+								type={inputType}
+								name={keyName}
+							/>
+						</label>
+					</div>
+				)
+			} else {
+				return (
+					<div key={index}>
+						<label> {labels[gameOptions.id][keyName]}:
+							<input
+								value={gameOptions.settings[keyName]}
+								onChange={handelChange}
+								type={inputType}
+								name={keyName}
+							/>
+						</label>
+					</div>
+				)
 			}
 		})
 	}
 
 	return (
 		<form className='settings-form'>
-			<div>
-				<label>Número de cartas:
-					<input onChange={handelChange} type="text" name="numberOfCardsOnBoard" value={form.numberOfCardsOnBoard} />
-				</label>
-			</div>
-			<div>
-				<label>Puntos para ganar:
-					<input onChange={handelChange} type="text" name="maxPoints" value={form.maxPoints} />
-				</label>
-			</div>
-			<div>
-				<label>Mostrar nombres:
-					<input onChange={handelChange} type="checkbox" name="showStudentsName" checked={form.showStudentsName} />
-				</label>
-			</div>
-			<div>
-				<label>Mostrar si la selección es correcta o no:
-					<input onChange={handelChange} type="checkbox" name='showStudentChoises' checked={form.showStudentChoises} />
-				</label>
-			</div>
-			<div>
-				<label>Tomar turnos para ser profesor
-					<input onChange={handelChange} type="checkbox" name='teachersTakeTurns' checked={form.teachersTakeTurns} />
-				</label>
-			</div>
-			<div>
-				<label>Mostrar el primero de cada turno
-					<input onChange={handelChange} type="checkbox" name='showWhoIsFirst' checked={form.showWhoIsFirst} />
-				</label>
-			</div>
-			{/* <div>
-					<label>Límite de tiempo
-						<input onChange={handelChange} type="text" name='timeLimit' vale={form.timeLimit} />
+			<div className='games-list'>
+				{gamesList.map(g => {
+					return <label key={g.id}>
+						{g.name}:
+						<input
+							key={g.id}
+							type="radio"
+							name='game'
+							value={g.id}
+							checked={g.id === gameOptions.id}
+							onChange={handleRadioChange}
+						/>
 					</label>
-				</div> */}
+				})}
+			</div>
+			{printInputs(gameOptions.settings)}
 		</form>
 	)
 }

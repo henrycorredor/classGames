@@ -1,82 +1,55 @@
 import { useState } from "react"
-import { useGameSession } from "../contexts/GameSessionProvider"
+import { useGameState } from "../contexts/GameStateProvider"
 import { useSocket } from "../contexts/SocketProvider"
 
 export default function WaitingStudents() {
-	const { gameSession, updateGameSession } = useGameSession()
+	const { gameState, updateGameState } = useGameState()
 	const socket = useSocket()
 	const [warning, setWarning] = useState('')
 
-	function approve(id, approved) {
-		setWarning('')
-		socket.emit('approve-student', id, approved, (done, waitingList, studentsList) => {
-			if (done) {
-				updateGameSession({
-					students: studentsList,
-					waiting: waitingList
-				})
-			} else {
-				setWarning('Oops... algo salió mal')
-			}
-		})
+	function rejectStudent(id) {
+		socket.emit('moderate-student', id, 'reject')
 	}
 
-	function imTeacher(id) {
-		setWarning('')
-		socket.emit('set-teachet', id, (done, studentList) => {
-			if (done) {
-				updateGameSession({ students: studentList })
-			} else {
-				setWarning('Oops... algo salió mal')
-			}
-		})
+	function setTeacher(id) {
+		socket.emit('moderate-student', id, 'set-teacher')
 	}
 
 	function startGame() {
-		if (!gameSession.students.some(s => s.rol === 'teacher') && !gameSession.settings.teachersTakeTurns) {
+		if (!gameState.users.some(s => s.rol === 'teacher') && gameState.settings.needTeacher) {
 			setWarning('No has seleccionado profesor')
-		} else if (gameSession.students.length < 2) {
-			setWarning('Necesitamos mínimo un profesor y un estudiante')
-		} else if (gameSession.waiting.length !== 0) {
-			setWarning('Hay usuarios por aprovar')
+		} else if (gameState.users.length < 2) {
+			setWarning('Necesitamos mínimo de dos estudiantes estudiante')
 		} else {
-			socket.emit('start-game', '', () => {
-				updateGameSession({ status: 4 })
+			socket.emit('start-game', gameState.game.settings, () => {
+				updateGameState({ status: 3 })
 			})
 		}
 	}
 
-	function IAmTeacherButton(id) {
-		const noTeachers = gameSession.students.some(s => s.rol === 'teacher')
-		return (!gameSession.settings.teachersTakeTurns && !noTeachers)
-			? <button onClick={() => { imTeacher(id) }}>Soy profesor</button>
-			: ''
+	function controlButtons(id, rol) {
+		let toReturn = ''
+		if (gameState.settings.needTeacher) {
+			if (!gameState.users.some(u => u.rol === 'teacher') && rol !== 'teacher') {
+				toReturn += <button onClick={() => setTeacher(id)}>Soy el profe</button>
+			}
+		}
+		toReturn += <button onClick={() => rejectStudent(id)}>Expulsar</button>
+		return toReturn
 	}
 
 	return (
 		<div className='master-main-room'>
-			<div className='small-board'>{gameSession.room}</div>
+			<div className='small-board'>{gameState.room}</div>
 
 			<div className='long-board'>Esperando participantes...</div>
 
 			<ul className='long-board'>
-				{gameSession.waiting.map(s => {
+				{gameState.users.map(s => {
 					return (
 						<li key={s.id}>
 							{s.name}
-							<button onClick={() => { approve(s.id, true) }}>Aceptar</button>
-							<button onClick={() => { approve(s.id, false) }}>Rechazar</button>
-						</li>
-					)
-				})}
-			</ul>
-			<ul className='long-board'>
-				{gameSession.students.map(s => {
-					return (
-						<li key={s.id}>
-							{s.name}
-							{(s.rol === 'teacher') ? ' - soy profe' : null}
-							{IAmTeacherButton(s.id)}
+							{controlButtons(s.id, s.rol)}
 						</li>
 					)
 				})}

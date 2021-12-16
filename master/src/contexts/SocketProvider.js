@@ -18,10 +18,7 @@ export function SocketProvider({ children }) {
 
 		return () => {
 			if (socket !== '') {
-				console.log('desconecta')
 				socket.close()
-			}else{
-				console.log('no desconecta')
 			}
 		}
 	}, [socket])

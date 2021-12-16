@@ -1,15 +1,15 @@
-import { GameSessionProvider } from '../contexts/GameSessionProvider'
+import { GameStateProvider } from '../contexts/GameStateProvider'
 import { SocketProvider } from '../contexts/SocketProvider'
 import GameBoard from '../components/GameBoard'
 import Layout from './Layout'
 function App() {
 	return (
 		<SocketProvider>
-			<GameSessionProvider>
+			<GameStateProvider>
 				<Layout>
 					<GameBoard />
 				</Layout>
-			</GameSessionProvider>
+			</GameStateProvider>
 		</SocketProvider>
 	)
 }
