@@ -118,10 +118,18 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 			}
 			session.master.status = 4
 			session.students.map(s => { s.status = 5 })
-			const deckInstance = new fastCardsClass(settings.numberOfCardsOnBoard)
-			gameInstances[room] = deckInstance
+
+			let gameInstance
+			switch (session.game) {
+				case 'fast-cards':
+					gameInstance = new fastCardsClass(settings.numberOfCardsOnBoard)
+				default:
+					gameInstance = ''
+			}
+
+			gameInstances[room] = gameInstance
 			io.of('/student').to(room).emit(
-				'start-game', deckInstance.setNewTurn(), session.settings
+				'start-game', gameInstance.setNewTurn(), session.settings
 			)
 			cb()
 		})

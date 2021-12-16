@@ -1,7 +1,7 @@
 import studentListener from './fastCardsSocketLilsteners'
 
 class gameControls {
-	constructor(numberOfCardsOnBoard = 4, studentSocket, masterSocket) {
+	constructor(numberOfCardsOnBoard = 4, socket) {
 		this.fullDeck = ['01.png', '02.png', '03.png', '04.png', '05.png', '06.png', '07.png', '08.png', '09.png', '10.png']
 		this.randomList = []
 		this.randomSelection = []
@@ -11,7 +11,7 @@ class gameControls {
 		this.gameState = 1
 		this.cardsOnBoard = Number(numberOfCardsOnBoard)
 
-		if(studentSocket) studentListener(studentSocket)
+		studentListener(socket, this)
 	}
 
 	setRandomSelection() {
