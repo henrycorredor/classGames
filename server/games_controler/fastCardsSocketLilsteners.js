@@ -1,5 +1,8 @@
-module.exports = function (socket) {
-	socket.on('hit-card', (userId, cardIndex) => {
+module.exports = async function (sockets) {
+	//console.log(sockets.sockets)
+	//console.log(sockets)
+	/*socket.on('hit-card', (userId, cardIndex) => {
+		console.log('miau')
 		const cards = gameInstances[room]
 		cards.hitCard(userId, cardIndex)
 		if (cards.clicked.length === session.students.length - 1) {
@@ -29,5 +32,5 @@ module.exports = function (socket) {
 		gameInstances[room].gameState = 1
 		cb(gameInstances[room].setNewTurn())
 		io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].cardDeck())
-	})
+	})-*/
 }

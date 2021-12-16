@@ -21,7 +21,8 @@ const initialGameSession = {
 		teachersTakeTurns: false,
 		showWhoIsFirst: true,
 		timeLimit: 0,
-		numberOfCardsOnBoard: 4
+		numberOfCardsOnBoard: 4,
+		game: 'fast-cards'
 	}
 }
 

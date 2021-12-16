@@ -1,6 +1,6 @@
 const serverMaster = require('./serverMaster')
 const serverStudent = require('./serverStudents')
-const fastCardsClass = require('./fastCardsClass')
+const fastCardsClass = require('./games_controler/fastCardsClass')
 const sessionControl = require('./sessionControl')
 const io = require('socket.io')(
 	3000, {

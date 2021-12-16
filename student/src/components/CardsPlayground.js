@@ -17,6 +17,7 @@ export default function CardsPlayground() {
 
 	function hitCard(index) {
 		if (cardsDeck.clicked.every(c => c.id !== user.id)) {
+			console.log('click!')
 			socket.emit('hit-card', user.id, index)
 		}
 	}

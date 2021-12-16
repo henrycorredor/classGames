@@ -1,4 +1,4 @@
-import studentListener from './fastCardsSocketLilsteners'
+//const studentListener = require('./fastCardsSocketLilsteners')
 
 class gameControls {
 	constructor(numberOfCardsOnBoard = 4, socket) {
@@ -11,7 +11,7 @@ class gameControls {
 		this.gameState = 1
 		this.cardsOnBoard = Number(numberOfCardsOnBoard)
 
-		studentListener(socket, this)
+		//studentListener(socket, this)
 	}
 
 	setRandomSelection() {

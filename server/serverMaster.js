@@ -122,7 +122,8 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 			let gameInstance
 			switch (session.game) {
 				case 'fast-cards':
-					gameInstance = new fastCardsClass(settings.numberOfCardsOnBoard)
+					gameInstance = new fastCardsClass(settings.numberOfCardsOnBoard, io.of('/student').to(room))
+					break
 				default:
 					gameInstance = ''
 			}
