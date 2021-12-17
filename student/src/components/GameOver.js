@@ -1,9 +1,9 @@
-import { useGameContext } from "../contexts/GameSessionProvider"
+import { useGameStateContext } from "../contexts/GameStateProvider"
 import './styles/GameOver.css'
 
 export default function GameOver() {
-	const { gameSession } = useGameContext()
-	const { cardsDeck, settings } = gameSession
+	const { gameState } = useGameStateContext()
+	const { cardsDeck, settings } = gameState
 	return (
 		<div className='game-over'>
 			<div className='points'> {cardsDeck.points} / <span> {settings.maxPoints} </span> </div>

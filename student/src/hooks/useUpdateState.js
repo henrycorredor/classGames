@@ -1,6 +1,6 @@
-export default function useUpdateSession(setGameSession) {
+export default function useUpdateState(setGameState) {
 	return function (newObj) {
-		setGameSession(prevObj => {
+		setGameState(prevObj => {
 			newObj.students = (newObj.students) ? newObj.students : prevObj.students
 			return ({
 				game: {
@@ -13,15 +13,7 @@ export default function useUpdateSession(setGameSession) {
 				},
 				students: [
 					...newObj.students
-				],
-				settings: {
-					...prevObj.settings,
-					...newObj.settings
-				},
-				cardsDeck: {
-					...prevObj.cardsDeck,
-					...newObj.cardsDeck
-				}
+				]
 			})
 		})
 	}

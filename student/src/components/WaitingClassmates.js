@@ -1,15 +1,15 @@
-import { useGameContext } from "../contexts/GameSessionProvider";
+import { useGameStateContext } from "../contexts/GameStateProvider";
 
 export default function WaitingClassmates() {
-	const { gameSession } = useGameContext()
+	const { gameState } = useGameStateContext()
 
-	const names = gameSession.students.map((s) => gameSession.settings.showStudentsName ? s.name : '')
+	const names = gameState.students.map((s) => gameState.game.settings.showStudentsName ? s.name : '')
 
 	return (
 		<div className='one-input-form'>
 			<div className='golden-board'>Espera un momento...</div>
 			<div className='student-list'>
-				{gameSession.students.map((s, i) => {
+				{gameState.students.map((s, i) => {
 					const myClass = (s.rol === 'teacher') ? 'student-name teacher' : 'student-name'
 					return (
 						<div

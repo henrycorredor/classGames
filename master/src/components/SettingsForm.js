@@ -12,10 +12,10 @@ const labels = {
 	}
 }
 
-export default function SettingsForm({ gamesList, gameOptions, setGameOptions }) {
+export default function SettingsForm({ gamesList, gameInfo, setGameInfo }) {
 	console.log('renderiza el form')
 	function handelChange({ target }) {
-		setGameOptions(val => {
+		setGameInfo(val => {
 			return {
 				...val,
 				settings: {
@@ -29,7 +29,7 @@ export default function SettingsForm({ gamesList, gameOptions, setGameOptions })
 	function handleRadioChange({ target }) {
 		console.log('miau', target)
 		const index = gamesList.findIndex(g => g.id === target.value)
-		setGameOptions({ ...gamesList[index] })
+		setGameInfo({ ...gamesList[index] })
 	}
 
 	function printInputs(settings) {
@@ -39,9 +39,9 @@ export default function SettingsForm({ gamesList, gameOptions, setGameOptions })
 			if (inputType === 'checkbox') {
 				return (
 					<div key={index}>
-						<label> {labels[gameOptions.id][keyName]}:
+						<label> {labels[gameInfo.id][keyName]}:
 							<input
-								checked={gameOptions.settings[keyName]}
+								checked={gameInfo.settings[keyName]}
 								onChange={handelChange}
 								type={inputType}
 								name={keyName}
@@ -52,9 +52,9 @@ export default function SettingsForm({ gamesList, gameOptions, setGameOptions })
 			} else {
 				return (
 					<div key={index}>
-						<label> {labels[gameOptions.id][keyName]}:
+						<label> {labels[gameInfo.id][keyName]}:
 							<input
-								value={gameOptions.settings[keyName]}
+								value={gameInfo.settings[keyName]}
 								onChange={handelChange}
 								type={inputType}
 								name={keyName}
@@ -77,13 +77,13 @@ export default function SettingsForm({ gamesList, gameOptions, setGameOptions })
 							type="radio"
 							name='game'
 							value={g.id}
-							checked={g.id === gameOptions.id}
+							checked={g.id === gameInfo.id}
 							onChange={handleRadioChange}
 						/>
 					</label>
 				})}
 			</div>
-			{printInputs(gameOptions.settings)}
+			{printInputs(gameInfo.settings)}
 		</form>
 	)
 }

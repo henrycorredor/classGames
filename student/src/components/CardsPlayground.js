@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useSocket } from '../contexts/SocketProvider'
-import { useGameContext } from '../contexts/GameSessionProvider'
+import { useGameStateContext } from '../contexts/GameStateProvider'
 import './styles/CardsPlayground.css'
 
 /*
@@ -10,10 +10,10 @@ game sub - status
 */
 
 export default function CardsPlayground() {
-	const { gameSession, updateGameSession } = useGameContext()
+	const { gameState, updateGameState } = useGameStateContext()
 	const socket = useSocket()
 	const [warning, setWarning] = useState('')
-	const { cardsDeck, students, user, settings } = gameSession
+	const { cardsDeck, students, user, settings } = gameState
 
 	function hitCard(index) {
 		if (cardsDeck.clicked.every(c => c.id !== user.id)) {
@@ -24,7 +24,7 @@ export default function CardsPlayground() {
 
 	function nextRound() {
 		socket.emit('next-round', (newCardsDeck) => {
-			updateGameSession({ cardsDeck: newCardsDeck })
+			updateGameState({ cardsDeck: newCardsDeck })
 		})
 	}
 
@@ -41,14 +41,14 @@ export default function CardsPlayground() {
 				}
 				break
 			case 3:
-				updateGameSession({ game: { status: 6 } })
+				updateGameState({ game: { status: 6 } })
 				break
 			default:
 				setWarning('oh oh... algo ha salido mal')
 		}
 	}, [
 		cardsDeck,
-		updateGameSession
+		updateGameState
 	])
 
 	function cards() {

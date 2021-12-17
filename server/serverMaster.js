@@ -1,11 +1,14 @@
-module.exports = function (io, gameSessions, gameInstances, fastCardsClass, userDropConection) {
+const sessionControl = require('./sessionControl')
+const fastCardClass = require('./games_controler/fastCardsClass')
+
+module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 	const masterSocket = io.of('/master')
 
 	masterSocket.on('connect', (socket) => {
 		console.log('master conectado')
 
 		let room = ''
-		let session = ''
+		let roomName = ''
 
 		function getStudent(id) {
 			const student = session.students.filter(s => s.id === id)
@@ -28,77 +31,55 @@ module.exports = function (io, gameSessions, gameInstances, fastCardsClass, user
 			})
 		}
 
+		function createNewGame(game) {
+			switch (game.id) {
+				case 'fastCards':
+					return new fastCardClass(game)
+				default:
+					return ''
+			}
+		}
+
 		socket.on('disconnect', () => {
 			if (room) {
-				userDropConection(room, 'master')
+				//userDropConection(room, 'master')
 			}
 		})
 
-		socket.on('create-room', (gameName, settings, cb) => {
-			//roomNumber = Math.floor(Math.random() * 90000) + 10000
-			roomNumber = Math.floor(Math.random() * 90) + 10
-			room = 'room-' + roomNumber
-			gameSessions[room] = {
-				game: gameName,
+		socket.on('create-room', (gameOpts, cb) => {
+			//random = Math.floor(Math.random() * 90000) + 10000
+			random = Math.floor(Math.random() * 90) + 10
+			roomName = 'room-' + random
+			rooms[roomName] = {
 				master: {
 					socket: socket.id,
-					status: 3,
+					status: 2,
 					online: true
 				},
-				waiting: [],
 				students: [],
-				settings: settings
+				game: createNewGame(gameOpts)
 			}
-			session = gameSessions[room]
-			cb(roomNumber)
+			cb(random)
 		})
 
-		socket.on('verify-sesion', (roomNumber, cb) => {
-			console.log('master verifica sala')
-			if (gameSessions['room-' + roomNumber]) {
-				room = 'room-' + roomNumber
-				session = gameSessions['room-' + roomNumber]
-				session.master.socket = socket.id
-				session.master.online = true
-				cb(true,
-					{
-						status: session.master.status,
-						students: studentsListToClient(),
-						waiting: session.waiting.filter(s => s.name !== '')
-					})
-			} else {
-				cb(false)
-			}
-		})
+		socket.on('verify-room', (roomNumber, cb) => {
+			if (rooms['room-' + roomNumber]) {
+				roomName = 'room-' + roomNumber
+				room = rooms[roomName]
 
-		socket.on('approve-student', (studentId, approve, cb) => {
-			const student = getWaitingStudent(studentId)
-			if (student) {
-				if (approve) {
-					session.students.push({
-						...student,
-						online: true,
-						rol: 'student',
-						status: 4
-					})
-					session.waiting = session.waiting.filter(s => s.id !== studentId)
-					io.of('/student').to(room).emit('update-students-list', studentsListToClient())
-				} else {
-					student.name = ''
-				}
-				io.of('/student').to(student.socket).emit('name-approved', approve)
-				cb(true, session.waiting.filter(s => s.name !== ''), studentsListToClient())
-			} else {
-				cb(false)
-			}
-		})
+				room.master.socket = socket.id
+				room.master.online = true
 
-		socket.on('set-teachet', (id, cb) => {
-			const student = getStudent(id)
-			if (student) {
-				student.rol = 'teacher'
-				cb(true, studentsListToClient())
-				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
+				cb(true, {
+					room: roomNumber,
+					status: room.master.status,
+					users: room.students,
+					game: {
+						name: room.game.name,
+						id: room.game.id,
+						settings: room.game.settings
+					}
+				})
 			} else {
 				cb(false)
 			}

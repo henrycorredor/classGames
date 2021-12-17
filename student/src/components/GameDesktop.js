@@ -1,25 +1,21 @@
-import { useGameContext } from '../contexts/GameSessionProvider'
-import InputRoomNumber from './InputRoomNumber'
-import InputName from './InputName'
+import { useGameStateContext } from '../contexts/GameStateProvider'
+import Suscribe from './Suscribe'
 import WaitingClassmates from './WaitingClassmates'
 import CardsPlayground from './CardsPlayground'
 import GameOver from './GameOver'
 
 export default function GameDesktop() {
-	const { gameSession } = useGameContext()
-	const { game } = gameSession
-	switch (game.status) {
-		case 1:
+	const { gameState } = useGameStateContext()
+	switch (gameState.game.status) {
+		case 0:
 			return <div className='golden-board'>Conectando ...</div>
+		case 1:
+			return <Suscribe />
 		case 2:
-			return <InputRoomNumber />
-		case 3:
-			return <InputName />
-		case 4:
 			return <WaitingClassmates />
-		case 5:
+		case 3:
 			return <CardsPlayground />
-		case 6:
+		case 4:
 			return <GameOver />
 		default:
 			return <div>Oops...</div>

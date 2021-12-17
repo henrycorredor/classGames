@@ -54,4 +54,25 @@ Server Userlist
 	status: 1
 }]
 
+---------------------------
+
+-- SERVER > ROOMS --
+
+{
+	master:{
+		socket: String,
+		status: Number,
+		online: boolean
+	},
+	students:[{
+		id: string,
+		name: string,
+		online: true,
+		rol: 'student'
+		socket: string,
+		status: 1
+	}],
+	game: class Instance
+}
+
 */

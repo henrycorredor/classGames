@@ -1,31 +1,38 @@
 import { useState } from 'react'
 import { useSocket } from '../contexts/SocketProvider'
-import { useGameContext } from '../contexts/GameSessionProvider'
+import { useGameStateContext } from '../contexts/GameStateProvider'
 
-export default function InputRoomNumber() {
+export default function Suscribe() {
 	const [warning, setWarning] = useState('')
-	const [roomNumber, setRoomNumber] = useState('')
-	const { updateGameSession } = useGameContext()
+	const [form, setForm] = useState({ roomNumber: '', userName: '' })
+	const { updateGameState } = useGameStateContext()
 	const socket = useSocket()
 
-	function handleChange(e) {
-		setRoomNumber(e.target.value)
+	function handleChange({ target }) {
+		setForm(data => {
+			return {
+				...data,
+				[target.name]: target.value
+			}
+		})
 		setWarning('')
 	}
 
 	function handleSubmit(e) {
 		e.preventDefault()
-		socket.emit('join-room', roomNumber, (ok, newId, newSettings) => {
+		socket.emit('join-room', form, (ok, gameObj) => {
 			if (ok) {
-				console.log('accede a la sala')
-				console.log(newSettings)
-				updateGameSession({
-					game: { room: roomNumber, status: 3 },
-					user: { id: newId },
-					settings: { ...newSettings }
+				console.log(gameObj)
+				updateGameState({
+					...gameObj
 				})
 			} else {
-				setRoomNumber('')
+				setForm(data => {
+					return {
+						...data,
+						roomNumber: ''
+					}
+				})
 				setWarning('Sala no encontrada')
 			}
 		})
@@ -46,7 +53,16 @@ export default function InputRoomNumber() {
 					autoFocus
 					type='text'
 					onChange={handleChange}
-					value={roomNumber}
+					name='roomNumber'
+					value={form.roomNumber}
+				/>
+				<input
+					className='it3'
+					placeholder='Tu nombre'
+					type='text'
+					onChange={handleChange}
+					name='userName'
+					value={form.userName}
 				/>
 				<button className='b3' type='submit'>Entrar</button>
 			</form>

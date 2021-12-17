@@ -29,7 +29,6 @@ const gamesList = [
 ]
 
 const initialGameState = {
-	id: '',
 	room: '',
 	status: 0,
 	users: [],
@@ -64,7 +63,6 @@ export function GameStateProvider({ children }) {
 
 		if (socket !== '') {
 
-			const id = gameState.id
 			const room = gameState.room
 
 			socket.removeAllListeners('connect')
@@ -72,14 +70,10 @@ export function GameStateProvider({ children }) {
 
 				if (room !== '') {
 
-					socket.emit('verify-room', id, room, (found, gameObj, userList, myStatus) => {
+					socket.emit('verify-room', room, (found, masterObj) => {
 
 						if (found) {
-							updateGameState({
-								users: userList,
-								game: gameObj,
-								status: myStatus
-							})
+							updateGameState(masterObj)
 						} else {
 							updateGameState({
 								...initialGameState,

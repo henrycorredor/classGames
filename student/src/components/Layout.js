@@ -1,11 +1,11 @@
-import { useGameContext } from '../contexts/GameSessionProvider'
+import { useGameStateContext } from '../contexts/GameStateProvider'
 import './styles/Layout.css'
 
 function Layout({ children }) {
-	const { gameSession } = useGameContext()
+	const { gameState } = useGameStateContext()
 
 	function containerClass() {
-		return gameSession.user.rol === 'student' ? 'student' : 'teacher'
+		return gameState.user.rol === 'student' ? 'student' : 'teacher'
 	}
 
 	return (

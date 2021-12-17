@@ -28,8 +28,10 @@ export default function WaitingStudents() {
 	}
 
 	function controlButtons(id, rol) {
+		console.log(gameState)
+		const {settings} = gameState.game
 		let toReturn = ''
-		if (gameState.settings.needTeacher) {
+		if (settings.needTeacher) {
 			if (!gameState.users.some(u => u.rol === 'teacher') && rol !== 'teacher') {
 				toReturn += <button onClick={() => setTeacher(id)}>Soy el profe</button>
 			}
