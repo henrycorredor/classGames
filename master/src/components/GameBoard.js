@@ -14,7 +14,7 @@ export default function GameBoard() {
 		case 1:
 			return <CreateRoom />
 		case 2:
-			return <WaitingStudents />
+			return <div><WaitingStudents /><button onClick={() => socket.emit('print')}>Miau</button></div>
 		case 3:
 			return <div><div className='small-board center'>Jugando</div><button onClick={() => socket.emit('print')}>Miau</button></div>
 		case 4:

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
 import useUpdateState from '../hooks/useUpdateState'
 import { useSocket } from './SocketProvider'
@@ -12,24 +12,23 @@ const initialState = {
 	game: {
 		room: '',
 		status: 0,
-		data: {
-			id: '',
-			settings: '',
-			props: ''
-		}
+		id: '',
+		settings: '',
+		props: ''
 	},
 	user: {
 		id: '',
 		name: '',
-		rol: 'student'
+		rol: 'student',
+		status: 0
 	},
-	students: [],
+	users: [],
 }
 
 export function GameStateProvider({ children }) {
 	const [gameState, setGameState] = useLocalStorage('game-session', initialState)
 	const updateGameState = useUpdateState(setGameState)
-	//const [pass, setPass] = useState(true)
+	const [pass, setPass] = useState(true)
 	const socket = useSocket()
 
 	useEffect(() => {
@@ -40,13 +39,14 @@ export function GameStateProvider({ children }) {
 				const id = gameState.user.id
 
 				if (room === '') {
-					updateGameState({ game: { status: 1 } })
+					updateGameState({ user: { status: 1, rol: 'student' } })
 				} else {
 					socket.emit('verify-room', room, id, (exist, gameObj) => {
 						if (exist) {
+							console.log(gameObj)
 							updateGameState({ ...gameObj })
 						} else {
-							updateGameState({ game: { status: 1 } })
+							updateGameState({ user: { status: 1, rol: 'student' } })
 						}
 					})
 				}
@@ -61,14 +61,33 @@ export function GameStateProvider({ children }) {
 
 	useEffect(() => {
 		if (socket !== '') {
+			socket.removeAllListeners('update-user-list')
 			socket.on('update-user-list', (userList) => {
-				updateGameState({ students: userList })
+				console.log(userList)
+				console.log(gameState.user.id)
+				const myProfile = userList.filter(u => u.id === gameState.user.id)
+				if (myProfile.length !== 0) {
+					updateGameState({ users: userList, user: { rol: myProfile[0].rol } })
+				}
 			})
-			socket.on('update-game-obj', (obj) => {
-				updateGameState({ ...obj })
-			})
+			if (pass) {
+				setPass(false)
+				socket.on('update-game', (obj) => {
+					console.log('llama a actualizar objeto de juego')
+					console.log(obj)
+					updateGameState({ game: obj })
+				})
+				socket.on('update-user', (obj) => {
+					updateGameState({ user: obj })
+				})
+				socket.on('start-game', (gameObj) => {
+					console.log('llama a iniciar el juego el juego')
+					console.log(gameObj)
+					updateGameState({ game: { ...gameObj }, user: { status: 3 } })
+				})
+			}
 		}
-	}, [socket, updateGameState])
+	}, [socket, pass, gameState.user.id, updateGameState])
 
 	return (
 		<GameStateContext.Provider value={{ gameState, updateGameState }}>

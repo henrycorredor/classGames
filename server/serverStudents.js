@@ -6,25 +6,12 @@ module.exports = function (io, rooms) {
 
 	studentSocket.on('connect', (socket) => {
 
-		const client = {
-			game: {
-				room: '',
-				id: '',
-				status: 0,
-				settings: ''
-			},
-			user: {
-				id: '',
-				name: '',
-				rol: 'student'
-			}
-		}
-
 		let room = ''
 		let roomName = ''
+		let myId = ''
 
 		function studentList() {
-			return room.students.map(s => {
+			return room.users.list.map(s => {
 				return {
 					id: s.id,
 					name: s.name,
@@ -34,147 +21,118 @@ module.exports = function (io, rooms) {
 			})
 		}
 
-		function sendClientsStudentsList(except) {
+		function emitUsersList(except) {
 			const master = room.master.socket
 			io.of('/master').to(master).emit('update-user-list', studentList())
 			io.of('/student').to(roomName).except(except).emit('update-user-list', studentList())
 		}
 
-		function updateAndGetClientObj(newObj) {
-			client.game = {
-				...client.game,
-				...newObj.game
-			}
-			client.user = {
-				...client.user,
-				...newObj.user
-			}
-			if (newObj.students) client.students = newObj.students
-			console.log(client)
-			return client
-		}
-
 		socket.on('disconnect', () => {
-			/*if (room) {
-				userDropConection(room, client.user.id)
-				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
-				const master = session.master.socket
-				const students = session.students.map(s => {
-					return {
-						id: s.id,
-						name: s.name,
-						online: s.online,
-						rol: s.rol
-					}
-				})
-				const waiting = session.waiting.map(s => {
-					return {
-						id: s.id,
-						name: s.name,
-						socket: s.socket
-					}
-				})
-				io.of('/master').to(master).emit('update-students', { students: students, waiting: waiting })
-			}*/
+			//handle
 		})
 
 		socket.on('join-room', (form, cb) => {
+
+			// form = {roomNumber: Number, userName: string}
 
 			if (rooms['room-' + form.roomNumber]) {
 				roomName = 'room-' + form.roomNumber
 				room = rooms[roomName]
 
-				client.user.id = nanoid()
+				myId = nanoid()
 
-				room.students.push({
-					id: client.user.id,
+				room.users.list.push({
+					id: myId,
 					name: form.userName,
 					online: true,
 					rol: 'student',
-					socket: socket.id,
-					status: 2
+					socket: socket.id
 				})
 
-				const newObj = {
-					game: {
-						room: form.roomNumber,
-						status: 2,
-						id: room.game.id,
-						settings: room.game.settings,
-					},
-					students: studentList()
-				}
 				socket.join(roomName)
-				sendClientsStudentsList(socket.id)
-				cb(true, updateAndGetClientObj(newObj))
+
+				emitUsersList(socket.id)
+				cb(true,
+					{
+						user: {
+							id: myId,
+							name: form.userName,
+							rol: 'student',
+							status: 2
+						},
+						users: studentList(),
+						game: {
+							room: form.roomNumber,
+							id: room.game.id,
+							name: room.game.id,
+							settings: room.game.settings,
+						}
+					})
 			} else {
 				cb(false)
 			}
 		})
 
 		socket.on('verify-room', (roomNumber, userId, cb) => {
-			console.log(roomNumber)
-			console.log(rooms)
+
 			if (rooms['room-' + roomNumber]) {
-				roomName = 'room-' + roomNumber
-				room = rooms[roomName]
-				if (room.students.some(s => s.id === userId)) {
-					const myObj = room.students.filter(s => s.id !== userId)
+				const myObj = rooms['room-' + roomNumber].users.list.filter(s => s.id === userId)
+				if (myObj.length !== 0) {
+
+					roomName = 'room-' + roomNumber
+					room = rooms[roomName]
+
 					myObj[0].online = true
 
-					const newObj = {
+					const newGameObj = {
 						game: {
 							room: roomNumber,
 							id: room.game.id,
 							status: room.game.status,
-							settings: room.game.settings
+							settings: room.game.settings,
+							props: room.game.props
 						},
 						user: {
 							id: userId,
 							name: myObj[0].name,
-							rol: myObj[0].rol
+							rol: myObj[0].rol,
+							status: room.users.status
 						},
 						students: studentList()
 					}
-
-					cb(true, updateAndGetClientObj(newObj))
+					emitUsersList(socket.id)
+					cb(true, newGameObj)
+				} else {
+					cb(false)
 				}
+
 			} else {
 				cb(false)
 			}
 		})
 
-		socket.on('hit-card', (userId, cardIndex) => {
-			console.log('miau')
-			const cards = gameInstances[room]
-			cards.hitCard(userId, cardIndex)
-			if (cards.clicked.length === session.students.length - 1) {
-				cards.gameState = 2
-				if (cards.clicked.every(s => s.selection === cards.rightAnswer)) {
-					++cards.points
-					if (cards.points === Number(session.settings.maxPoints)) {
-						cards.gameState = 3
-						session.students.forEach(s => s.status = 6)
-						session.master.status = 5
-						io.of('/master').to(session.master.socket).emit('game-over')
-					}
-				}
-			}
-			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].gameObj())
+		socket.on('action-1', (options) => {
+			room.game.action1(options, room)
+			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
+			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
 		})
 
-		socket.on('next-round', (cb) => {
-			if (session.settings.teachersTakeTurns) {
-				let index = session.students.findIndex(s => s.rol === 'teacher')
-				index += 1
-				if (index === session.students.length) index = 0
-				session.students.forEach(s => s.rol = 'student')
-				session.students[index].rol = 'teacher'
-				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
-			}
-			gameInstances[room].gameState = 1
-			cb(gameInstances[room].setNewTurn())
-			io.of('/student').to(room).emit('update-cards-deck', gameInstances[room].gameObj())
+		socket.on('action-2', (options) => {
+			room.game.action2(options, room)
+			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
+			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
+		})
+
+		socket.on('action-3', (options) => {
+			room.game.action3(options, room)
+			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
+			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
+		})
+
+		socket.on('action-4', (options) => {
+			room.game.action1(options, room)
+			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
+			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
 		})
 
 	})

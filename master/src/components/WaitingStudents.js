@@ -16,12 +16,12 @@ export default function WaitingStudents() {
 	}
 
 	function startGame() {
-		if (!gameState.users.some(s => s.rol === 'teacher') && gameState.settings.needTeacher) {
+		if (!gameState.users.some(s => s.rol === 'teacher') && gameState.game.settings.needTeacher) {
 			setWarning('No has seleccionado profesor')
 		} else if (gameState.users.length < 2) {
 			setWarning('Necesitamos mínimo de dos estudiantes estudiante')
 		} else {
-			socket.emit('start-game', gameState.game.settings, () => {
+			socket.emit('start-game', gameState.game, () => {
 				updateGameState({ status: 3 })
 			})
 		}

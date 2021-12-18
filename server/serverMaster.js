@@ -1,5 +1,5 @@
 const sessionControl = require('./sessionControl')
-const fastCardClass = require('./games_controler/fastCardsClass')
+const gamesLibrary = require('./gamesLibrary/')
 
 module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 	const masterSocket = io.of('/master')
@@ -10,18 +10,8 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 		let room = ''
 		let roomName = ''
 
-		function getStudent(id) {
-			const student = session.students.filter(s => s.id === id)
-			return (student.length === 0) ? null : student[0]
-		}
-
-		function getWaitingStudent(id) {
-			const student = session.waiting.filter(s => s.id === id)
-			return (student.length === 0) ? null : student[0]
-		}
-
-		function studentsListToClient() {
-			return room.students.map(s => {
+		function usersListArr() {
+			return room.users.list.map(s => {
 				return {
 					id: s.id,
 					name: s.name,
@@ -32,23 +22,24 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 		}
 
 		function createNewGame(game) {
-			switch (game.id) {
-				case 'fastCards':
-					return new fastCardClass(game)
-				default:
-					return ''
-			}
+			const gameClass = gamesLibrary[game.id]
+			return new gameClass(game)
 		}
 
-		function sendClientsStudentsList(except) {
+		function emitUsersList(except) {
+			console.log('avisa')
 			const master = room.master.socket
-			io.of('/master').to(master).emit('update-user-list', studentsListToClient())
-			io.of('/student').to(roomName).except(except).emit('update-user-list', studentsListToClient())
+			io.of('/master').to(master).emit('update-user-list', usersListArr())
+			if (except) {
+				io.of('/student').to(roomName).except(except).emit('update-user-list', usersListArr())
+			} else {
+				io.of('/student').to(roomName).emit('update-user-list', usersListArr())
+			}
 		}
 
 		socket.on('disconnect', () => {
 			if (room) {
-				//userDropConection(room, 'master')
+				//handle
 			}
 		})
 
@@ -62,8 +53,15 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 					status: 2,
 					online: true
 				},
-				students: [],
-				game: createNewGame(gameOpts)
+				users: {
+					status: 2,
+					list: []
+				},
+				game: {
+					id: gameOpts.id,
+					name: gameOpts.name,
+					settings: gameOpts.settings
+				}
 			}
 			room = rooms[roomName]
 			cb(random)
@@ -80,10 +78,11 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 				cb(true, {
 					room: roomNumber,
 					status: room.master.status,
-					users: studentsListToClient(),
+					users: usersListArr(),
 					game: {
 						name: room.game.name,
 						id: room.game.id,
+						status: room.game.status,
 						settings: room.game.settings
 					}
 				})
@@ -93,25 +92,17 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 		})
 
 		socket.on('moderate-student', (id, action) => {
-			const user = room.students.filter(s => s.id === id)
+			const user = room.users.list.filter(s => s.id === id)
 			switch (action) {
 				case 'reject':
 					const resetUserObj = {
-						game: {
-							room: '',
-							id: '',
-							status: 1,
-							settings: ''
-						},
-						user: {
-							id: '',
-							name: '',
-							rol: 'student'
-						},
-						students: []
+						id: '',
+						name: '',
+						rol: 'student',
+						status: 1
 					}
-					io.of('/student').to(user[0].socket).emit('update-game-obj', resetUserObj)
-					room.students = room.students.filter(s => s.id !== id)
+					io.of('/student').to(user[0].socket).emit('update-user', resetUserObj)
+					room.users.list = room.users.list.filter(s => s.id !== id)
 					break
 				case 'set-teacher':
 					user[0].rol = 'teacher'
@@ -119,42 +110,32 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 				default:
 					break
 			}
-			sendClientsStudentsList()
+			emitUsersList()
 		})
 
-		socket.on('start-game', (settings, cb) => {
-			if (settings !== '') {
-				session.settings = { ...settings }
-			}
-			if (session.settings.teachersTakeTurns) {
-				let index = session.students.findIndex(s => s.rol === 'teacher')
-				index += 1
-				if (index === session.students.length) index = 0
-				session.students.forEach(s => s.rol = 'student')
-				session.students[index].rol = 'teacher'
-				io.of('/student').to(room).emit('update-students-list', studentsListToClient())
-			}
-			session.master.status = 4
-			session.students.map(s => { s.status = 5 })
+		socket.on('start-game', (gameOb, cb) => {
+			if (room.game) delete room.game
 
-			let gameInstance
-			switch (session.game) {
-				case 'fast-cards':
-					gameInstance = new fastCardsClass(settings.numberOfCardsOnBoard, io.of('/student').to(room))
-					break
-				default:
-					gameInstance = ''
+			room.game = createNewGame(gameOb)
+
+			room.users.list.map(u => room.game.users.push({ id: u.id, rol: u.rol, online: u.online }))
+
+			room.game.setNewTurn(room)
+			room.users.status = 3
+			room.master.status = 3
+
+			if (!room.game.settings.needTeacher && !room.users.list.some(u => u.rol === 'teacher')) {
+				const firstUser = room.users.list[0]
+				firstUser.rol = 'teacher'
+				io.of('/student').to(firstUser.socket).emit('update-user', { rol: 'teacher' })
 			}
 
-			gameInstances[room] = gameInstance
-			io.of('/student').to(room).emit(
-				'start-game', gameInstance.setNewTurn(), session.settings
-			)
+			io.of('/student').to(roomName).emit('start-game', { props: room.game.getProps(), status: 1, settings: room.game.settings })
 			cb()
 		})
 
 		socket.on('print', () => {
-			console.log('miau')
+			console.log(room.game)
 		})
 	})
 }

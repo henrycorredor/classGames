@@ -6,7 +6,7 @@ import GameOver from './GameOver'
 
 export default function GameDesktop() {
 	const { gameState } = useGameStateContext()
-	switch (gameState.game.status) {
+	switch (gameState.user.status) {
 		case 0:
 			return <div className='golden-board'>Conectando ...</div>
 		case 1:

@@ -20,12 +20,9 @@ export default function Suscribe() {
 
 	function handleSubmit(e) {
 		e.preventDefault()
-		socket.emit('join-room', form, (ok, gameObj) => {
+		socket.emit('join-room', form, (ok, gameData) => {
 			if (ok) {
-				console.log(gameObj)
-				updateGameState({
-					...gameObj
-				})
+				updateGameState({ ...gameData })
 			} else {
 				setForm(data => {
 					return {

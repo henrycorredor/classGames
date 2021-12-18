@@ -1,7 +1,7 @@
 export default function useUpdateState(setGameState) {
 	return function (newObj) {
 		setGameState(prevObj => {
-			newObj.students = (newObj.students) ? newObj.students : prevObj.students
+			newObj.users = (newObj.users) ? newObj.users : prevObj.users
 			return ({
 				game: {
 					...prevObj.game,
@@ -11,8 +11,8 @@ export default function useUpdateState(setGameState) {
 					...prevObj.user,
 					...newObj.user
 				},
-				students: [
-					...newObj.students
+				users: [
+					...newObj.users
 				]
 			})
 		})

@@ -1,6 +1,6 @@
 const labels = {
 	fastCards: {
-		needTeacher: 'Tomar turnos para ser profesor',
+		needTeacher: 'Designar un profesor',
 		numberOfCardsOnBoard: 'Número de cartas',
 		maxPoints: 'Puntos para ganar',
 		showStudentsName: 'Mostrar nombres',
@@ -13,7 +13,6 @@ const labels = {
 }
 
 export default function SettingsForm({ gamesList, gameInfo, setGameInfo }) {
-	console.log('renderiza el form')
 	function handelChange({ target }) {
 		setGameInfo(val => {
 			return {
@@ -27,7 +26,6 @@ export default function SettingsForm({ gamesList, gameInfo, setGameInfo }) {
 	}
 
 	function handleRadioChange({ target }) {
-		console.log('miau', target)
 		const index = gamesList.findIndex(g => g.id === target.value)
 		setGameInfo({ ...gamesList[index] })
 	}

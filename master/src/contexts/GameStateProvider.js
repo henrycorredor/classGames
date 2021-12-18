@@ -52,6 +52,11 @@ export function GameStateProvider({ children }) {
 			socket.on('update-game-obj', (gameObj) => {
 				updateGameState({ game: gameObj })
 			})
+
+			socket.on('update-state', (state) => {
+				console.log('miau', state)
+				updateGameState({ ...state })
+			})
 		}
 	}, [
 		socket,
@@ -62,16 +67,13 @@ export function GameStateProvider({ children }) {
 	useEffect(() => {
 
 		if (socket !== '') {
-
 			const room = gameState.room
 
 			socket.removeAllListeners('connect')
 			socket.on('connect', () => {
 
 				if (room !== '') {
-
 					socket.emit('verify-room', room, (found, masterObj) => {
-
 						if (found) {
 							updateGameState(masterObj)
 						} else {
@@ -80,13 +82,10 @@ export function GameStateProvider({ children }) {
 								status: 1
 							})
 						}
-
 					})
-
 				} else {
 					updateGameState({ status: 1 })
 				}
-
 			})
 		}
 

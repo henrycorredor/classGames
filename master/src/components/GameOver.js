@@ -5,8 +5,8 @@ import SettingsForm from "./SettingsForm"
 import './styles/GameOver.css'
 
 export default function GameOver() {
-	const { gameState, updateGameState } = useGameState()
-	const [form, setForm] = useState(gameState.settings)
+	const { gameState, updateGameState, gamesList } = useGameState()
+	const [form, setForm] = useState(gameState.game)
 	const socket = useSocket()
 
 	function handleSubmit() {
@@ -20,8 +20,8 @@ export default function GameOver() {
 		<div className='game-over'>
 			<div className='small-board'>¡Muy bien!</div>
 			<div className='again-form'>
-				<button onClick={handleSubmit} className='b3'>¿Otra vez?</button>
-				<SettingsForm form={form} setForm={setForm} />
+				<button onClick={handleSubmit} className='b3'>¿Otra vez?</button>				
+				<SettingsForm gameInfo={form} setGameInfo={setForm} gamesList={gamesList} />
 			</div>
 		</div>
 	)

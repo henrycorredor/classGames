@@ -13,25 +13,56 @@ Master
 Object
 
 {
-	state: Number,
+	status: Number,
 	room: Number,
-	users: Array[Client user list]
-	game: gameObject
+	users: [{
+		id: string,
+		name: string,
+		online: true,
+		rol: 'student'
+	}],
+	game: {
+		name: String,
+		id: String,
+		status: Number,
+		settings: {
+			needTeacher: Boolean,
+			showStudentsName: Boolean
+		}
+	}
 }
 
-Students
+--//--
+
+Users
 
 1. Input room and name
 2. Waits
 3. Play
 4. End
 
+Object
+
+{
+	game: {
+		room: '',
+		status: 0,
+		id: '',
+		settings: '',
+		props: ''
+	},
+	user: {
+		id: '',
+		name: '',
+		rol: 'student',
+		status: 0
+	},
+	users: []
+}
+
 ------------------------------------
 
--- CLIENT OBJECTS --
-
-Game Object:
-{}
+-- USER LIST ARRAY OBJECTS --
 
 Client users List:
 
@@ -64,15 +95,53 @@ Server Userlist
 		status: Number,
 		online: boolean
 	},
-	students:[{
-		id: string,
-		name: string,
-		online: true,
-		rol: 'student'
-		socket: string,
-		status: 1
-	}],
-	game: class Instance
+	users:{
+		status: Number,
+		list:[{
+			id: string,
+			name: string,
+			online: true,
+			rol: 'student'
+			socket: string
+		}]
+	},
+	game: class Instance{
+		settings: {
+			needTeacher: Boolean,
+			showStudentsName: Boolean
+		},
+		id: String,
+		name: String,
+		props: Object
+	}
 }
+
+----------------------------*/
+
+
+/*
+Fast Cards props
+
+constructor(gameOpts) {
+		this.settings = {
+			needTeacher: true,
+			numberOfCardsOnBoard: 4,
+			maxPoints: 10,
+			showStudentsName: true,
+			showStudentChoises: true,
+			showWhoIsFirst: true
+		}
+		this.status = 0
+		this.id = gameOpts.id
+		this.name = gameOpts.name
+		this.props = {
+			fullDeck: [],
+			randomNumbersList: [],
+			cardsOnBoard: [],
+			rightAnswer: 0,
+			clicked: [],
+			points: 0
+		}
+	}
 
 */
