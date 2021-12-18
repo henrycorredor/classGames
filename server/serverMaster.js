@@ -21,7 +21,7 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 		}
 
 		function studentsListToClient() {
-			return session.students.map(s => {
+			return room.students.map(s => {
 				return {
 					id: s.id,
 					name: s.name,
@@ -38,6 +38,12 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 				default:
 					return ''
 			}
+		}
+
+		function sendClientsStudentsList(except) {
+			const master = room.master.socket
+			io.of('/master').to(master).emit('update-user-list', studentsListToClient())
+			io.of('/student').to(roomName).except(except).emit('update-user-list', studentsListToClient())
 		}
 
 		socket.on('disconnect', () => {
@@ -59,6 +65,7 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 				students: [],
 				game: createNewGame(gameOpts)
 			}
+			room = rooms[roomName]
 			cb(random)
 		})
 
@@ -73,7 +80,7 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 				cb(true, {
 					room: roomNumber,
 					status: room.master.status,
-					users: room.students,
+					users: studentsListToClient(),
 					game: {
 						name: room.game.name,
 						id: room.game.id,
@@ -83,6 +90,36 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 			} else {
 				cb(false)
 			}
+		})
+
+		socket.on('moderate-student', (id, action) => {
+			const user = room.students.filter(s => s.id === id)
+			switch (action) {
+				case 'reject':
+					const resetUserObj = {
+						game: {
+							room: '',
+							id: '',
+							status: 1,
+							settings: ''
+						},
+						user: {
+							id: '',
+							name: '',
+							rol: 'student'
+						},
+						students: []
+					}
+					io.of('/student').to(user[0].socket).emit('update-game-obj', resetUserObj)
+					room.students = room.students.filter(s => s.id !== id)
+					break
+				case 'set-teacher':
+					user[0].rol = 'teacher'
+					break
+				default:
+					break
+			}
+			sendClientsStudentsList()
 		})
 
 		socket.on('start-game', (settings, cb) => {

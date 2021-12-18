@@ -17,8 +17,7 @@ module.exports = function (io, rooms) {
 				id: '',
 				name: '',
 				rol: 'student'
-			},
-			students: []
+			}
 		}
 
 		let room = ''
@@ -35,10 +34,10 @@ module.exports = function (io, rooms) {
 			})
 		}
 
-		function sendClientsStudentsList() {
+		function sendClientsStudentsList(except) {
 			const master = room.master.socket
 			io.of('/master').to(master).emit('update-user-list', studentList())
-			io.of('/student').to(roomName).emit('update-user-list', studentList())
+			io.of('/student').to(roomName).except(except).emit('update-user-list', studentList())
 		}
 
 		function updateAndGetClientObj(newObj) {
@@ -51,7 +50,7 @@ module.exports = function (io, rooms) {
 				...newObj.user
 			}
 			if (newObj.students) client.students = newObj.students
-
+			console.log(client)
 			return client
 		}
 
@@ -106,7 +105,7 @@ module.exports = function (io, rooms) {
 					students: studentList()
 				}
 				socket.join(roomName)
-				sendClientsStudentsList()
+				sendClientsStudentsList(socket.id)
 				cb(true, updateAndGetClientObj(newObj))
 			} else {
 				cb(false)

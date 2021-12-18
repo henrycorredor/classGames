@@ -27,17 +27,11 @@ export default function WaitingStudents() {
 		}
 	}
 
-	function controlButtons(id, rol) {
-		console.log(gameState)
-		const {settings} = gameState.game
-		let toReturn = ''
-		if (settings.needTeacher) {
-			if (!gameState.users.some(u => u.rol === 'teacher') && rol !== 'teacher') {
-				toReturn += <button onClick={() => setTeacher(id)}>Soy el profe</button>
-			}
-		}
-		toReturn += <button onClick={() => rejectStudent(id)}>Expulsar</button>
-		return toReturn
+	function setTeacherButton(id) {
+		const { settings } = gameState.game
+		return (settings.needTeacher && !gameState.users.some(u => u.rol === 'teacher')) ?
+			<button onClick={() => setTeacher(id)}>Soy el profe</button> :
+			''
 	}
 
 	return (
@@ -51,7 +45,8 @@ export default function WaitingStudents() {
 					return (
 						<li key={s.id}>
 							{s.name}
-							{controlButtons(s.id, s.rol)}
+							<button onClick={() => rejectStudent(s.id)}>Expulsar</button>
+							{setTeacherButton(s.id, s.rol)}
 						</li>
 					)
 				})}

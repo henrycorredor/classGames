@@ -62,11 +62,13 @@ export function GameStateProvider({ children }) {
 	useEffect(() => {
 		if (socket !== '') {
 			socket.on('update-user-list', (userList) => {
-				console.log(userList)
-				setGameState({ students: userList })
+				updateGameState({ students: userList })
+			})
+			socket.on('update-game-obj', (obj) => {
+				updateGameState({ ...obj })
 			})
 		}
-	}, [socket, setGameState])
+	}, [socket, updateGameState])
 
 	return (
 		<GameStateContext.Provider value={{ gameState, updateGameState }}>
