@@ -11,7 +11,6 @@ showWhoIsFirst: true
 
 class gameControls {
 	constructor(gameOpts) {
-		this.users = [] //{id: String, rol: String, online: Boolean}
 		this.settings = gameOpts.settings
 		this.status = 0
 		this.id = gameOpts.id
@@ -37,8 +36,29 @@ class gameControls {
 		}
 	}
 
-	setNewTurn(room) {
+	//hit card
+	action1({ userId, cardIndex }, room, reportUpdate) {
+		if (this.props.clicked.every(id => id !== userId)) {
+			this.props.clicked.push({ id: userId, selection: cardIndex, isRight: cardIndex === this.props.rightAnswer })
+			if (this.props.clicked.length === room.users.list.filter(u => u.online && u.rol === 'student').length) {
+				this.status = 2
+				if (this.props.clicked.every(c => c.isRight)) {
+					++this.props.points
+					if (this.props.points === Number(this.settings.maxPoints)) {
+						this.status = 3
+						room.master.status = 4
+						room.users.status = 4
+					}
+				}
+			}
+		}
+		reportUpdate()
+	}
+
+	//new round
+	action2(opts, room, reportUpdate) {
 		this.props.cardsOnBoard = []
+		room.users.status = 3
 		room.master.status = 3
 		do {
 
@@ -64,33 +84,17 @@ class gameControls {
 		this.props.clicked = []
 		this.status = 1
 
-		return this.getProps()
-	}
+		if (!this.settings.needTeacher) {
+			let teacherIndex = room.users.list.findIndex(u => u.rol === 'teacher')
+			teacherIndex++
+			if (teacherIndex === room.users.list.length) teacherIndex = 0
 
-	//hit card
-	action1({ userId, cardIndex }, room) {
-		if (this.props.clicked.every(id => id !== userId)) {
-			this.props.clicked.push({ id: userId, selection: cardIndex, isRight: cardIndex === this.props.rightAnswer })
-			if (this.props.clicked.length === this.users.filter(u => u.online && u.rol === 'student').length) {
-				this.status = 2
-				if (this.props.clicked.every(c => c.isRight)) {
-					++this.props.points
-					console.log(this.props.points, this.settings.maxPoints)
-					if (this.props.points === Number(this.settings.maxPoints)) {
-						this.status = 3
-						room.master.status = 4
-						room.users.status = 4
-					}
-				}
-			}
+			room.users.list.forEach(s => s.rol = 'student')
+			room.users.list[teacherIndex].rol = 'teacher'
 		}
-	}
 
-	//again
-	action2(opts, room) {
-		room.users.status = 4
-		room.master.status = 4
-		this.setNewTurn(room)
+		reportUpdate()
+		return this.getProps()
 	}
 
 	getProps() {

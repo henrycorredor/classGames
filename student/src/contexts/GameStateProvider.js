@@ -63,26 +63,33 @@ export function GameStateProvider({ children }) {
 		if (socket !== '') {
 			socket.removeAllListeners('update-user-list')
 			socket.on('update-user-list', (userList) => {
-				console.log(userList)
-				console.log(gameState.user.id)
 				const myProfile = userList.filter(u => u.id === gameState.user.id)
 				if (myProfile.length !== 0) {
 					updateGameState({ users: userList, user: { rol: myProfile[0].rol } })
 				}
 			})
+
+			socket.removeAllListeners('update-game-state')
+			socket.on('update-game-state', (obj) => {
+				console.log(obj)
+				if (obj.users) {
+					const myProfile = obj.users.filter(u => u.id === gameState.user.id)
+					if (myProfile[0]) {
+						obj.user.rol = myProfile[0].rol
+					}
+				}
+				updateGameState({ ...obj })
+			})
+
 			if (pass) {
 				setPass(false)
 				socket.on('update-game', (obj) => {
-					console.log('llama a actualizar objeto de juego')
-					console.log(obj)
 					updateGameState({ game: obj })
 				})
 				socket.on('update-user', (obj) => {
 					updateGameState({ user: obj })
 				})
 				socket.on('start-game', (gameObj) => {
-					console.log('llama a iniciar el juego el juego')
-					console.log(gameObj)
 					updateGameState({ game: { ...gameObj }, user: { status: 3 } })
 				})
 			}

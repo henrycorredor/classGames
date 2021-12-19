@@ -118,24 +118,29 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 
 			room.game = createNewGame(gameOb)
 
-			room.users.list.map(u => room.game.users.push({ id: u.id, rol: u.rol, online: u.online }))
+			room.game.action2('', room, () => {
+				room.users.status = 3
+				io.of('/student').to(roomName).emit(
+					'update-game-state',
+					{
+						user: { status: 3 },
+						game: {
+							props: room.game.getProps(),
+							status: 1,
+							settings: room.game.settings
+						},
+						users: usersListArr()
+					}
+				)
+			})
 
-			room.game.setNewTurn(room)
-			room.users.status = 3
-			room.master.status = 3
-
-			if (!room.game.settings.needTeacher && !room.users.list.some(u => u.rol === 'teacher')) {
-				const firstUser = room.users.list[0]
-				firstUser.rol = 'teacher'
-				io.of('/student').to(firstUser.socket).emit('update-user', { rol: 'teacher' })
-			}
-
-			io.of('/student').to(roomName).emit('start-game', { props: room.game.getProps(), status: 1, settings: room.game.settings })
 			cb()
 		})
 
 		socket.on('print', () => {
 			console.log(room.game)
+			console.log('----------------------')
+			console.log(room)
 		})
 	})
 }

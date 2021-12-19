@@ -7,8 +7,9 @@ const labels = {
 		showStudentChoises: 'Mostrar si la selección es correcta o no',
 		showWhoIsFirst: 'Mostrar el primero de cada turno'
 	},
-	test: {
-		needTeacher: 'Probando'
+	memorySnake: {
+		maxPoints: 'Puntos para ganar',
+		showStudentsName: 'Mostrar nombres'
 	}
 }
 

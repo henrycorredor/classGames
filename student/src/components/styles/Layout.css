@@ -32,12 +32,12 @@
 	font-family: Ubuntu, sans-serif;
 }
 
-#container.student{
+#container.student, #container.wait{
 	background: rgb(0,28,124);
 	background: linear-gradient(146deg, rgba(0,28,124,1) 0%, rgba(9,50,121,1) 35%, rgba(0,68,196,1) 100%);
 }
 
-#container.teacher{
+#container.teacher, #container.myTurn{
 	background: rgb(126,8,255);
 	background: linear-gradient(337deg, rgba(126,8,255,1) 0%, rgba(46,7,73,1) 100%);
 }

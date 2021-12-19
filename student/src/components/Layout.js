@@ -4,12 +4,8 @@ import './styles/Layout.css'
 function Layout({ children }) {
 	const { gameState } = useGameStateContext()
 
-	function containerClass() {
-		return gameState.user.rol === 'student' ? 'student' : 'teacher'
-	}
-
 	return (
-		<div id="container" className={containerClass()}>
+		<div id="container" className={gameState.user.rol}>
 			{children}
 		</div>
 	)

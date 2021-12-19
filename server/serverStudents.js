@@ -111,28 +111,37 @@ module.exports = function (io, rooms) {
 			}
 		})
 
-		socket.on('action-1', (options) => {
-			room.game.action1(options, room)
-			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
+		function reportUpdate() {
+			io.of('/student').to(roomName).emit(
+				'update-game-state',
+				{
+					user: {
+						status: room.users.status
+					},
+					game: {
+						props: room.game.getProps(),
+						status: room.game.status
+					},
+					users: studentList()
+				})
 			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
+		}
+
+		socket.on('action-1', (options) => {
+			room.game.action1(options, room, reportUpdate)
 		})
 
 		socket.on('action-2', (options) => {
-			room.game.action2(options, room)
-			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
-			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
+			console.log('action 2 llamada')
+			room.game.action2(options, room, reportUpdate)
 		})
 
 		socket.on('action-3', (options) => {
-			room.game.action3(options, room)
-			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
-			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
+			room.game.action3(options, room, reportUpdate)
 		})
 
 		socket.on('action-4', (options) => {
-			room.game.action1(options, room)
-			io.of('/student').to(roomName).emit('update-game', { props: room.game.getProps(), status: room.game.status })
-			io.of('/master').to(room.master.socket).emit('update-state', { status: room.master.status })
+			room.game.action1(options, room, reportUpdate)
 		})
 
 	})

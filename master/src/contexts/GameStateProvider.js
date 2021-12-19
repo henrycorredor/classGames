@@ -22,9 +22,12 @@ const gamesList = [
 			showWhoIsFirst: true
 		}
 	}, {
-		name: 'Probando',
-		id: 'test',
-		settings: { needTeacher: true }
+		name: 'Memory Snake',
+		id: 'memorySnake',
+		settings: {
+			maxPoints: 8,
+			showStudentsName: true
+		}
 	}
 ]
 
