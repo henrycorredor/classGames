@@ -6,12 +6,12 @@ class memorySnake {
 		this.clickedIndex = 0
 		this.props = {
 			fullDeck: [
-				{ type: 'picture', src: '01.png' },
-				{ type: 'picture', src: '02.png' },
-				{ type: 'picture', src: '03.png' },
-				{ type: 'picture', src: '04.png' },
-				{ type: 'picture', src: '05.png' },
-				{ type: 'picture', src: '06.png' },
+				{ type: 'picture', src: 'frutas/fresa.jpg' },
+				{ type: 'picture', src: 'frutas/sandia.jpg' },
+				{ type: 'picture', src: 'frutas/banana.jpg' },
+				{ type: 'picture', src: 'frutas/pera.jpg' },
+				{ type: 'picture', src: 'frutas/mango.jpg' },
+				{ type: 'picture', src: 'frutas/naranja.jpg' },
 			],
 			status: 0,
 			snake: [],

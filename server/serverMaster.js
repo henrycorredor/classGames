@@ -125,6 +125,8 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 					{
 						user: { status: 3 },
 						game: {
+							id: room.game.id,
+							name: room.game.name,
 							props: room.game.getProps(),
 							status: 1,
 							settings: room.game.settings
