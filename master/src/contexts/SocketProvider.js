@@ -12,7 +12,7 @@ export function SocketProvider({ children }) {
 
 	useEffect(() => {
 		if (socket === '') {
-			const newSocket = io('http://localhost:3000/master')
+			const newSocket = io('http://54.179.212.96:3000/master')
 			setSocket(newSocket)
 		}
 
