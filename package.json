@@ -1,0 +1,29 @@
+{
+  "name": "classgames",
+  "version": "1.0.0",
+  "description": "Class Games production folder",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henrycorredor/classGames.git"
+  },
+  "author": "Henry Corredor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/henrycorredor/classGames/issues"
+  },
+  "homepage": "https://github.com/henrycorredor/classGames#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "nanoid": "^3.1.30",
+    "socket.io": "^4.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

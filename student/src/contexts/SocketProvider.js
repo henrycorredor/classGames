@@ -11,7 +11,7 @@ export function SocketProvider({ children }) {
 
 	useEffect(() => {
 		if (socket === '') {
-			const newSocket = io('http://localhost:3000/student')
+			const newSocket = io('/student')
 			setSocket(newSocket)
 		}
 

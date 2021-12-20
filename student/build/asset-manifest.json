@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/static/css/main.3fee3b7e.chunk.css",
+    "main.js": "/static/js/main.d80bddc6.chunk.js",
+    "main.js.map": "/static/js/main.d80bddc6.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.6e98d251.js",
+    "runtime-main.js.map": "/static/js/runtime-main.6e98d251.js.map",
+    "static/css/2.6a1e7651.chunk.css": "/static/css/2.6a1e7651.chunk.css",
+    "static/js/2.18a3d78c.chunk.js": "/static/js/2.18a3d78c.chunk.js",
+    "static/js/2.18a3d78c.chunk.js.map": "/static/js/2.18a3d78c.chunk.js.map",
+    "static/js/3.53097be9.chunk.js": "/static/js/3.53097be9.chunk.js",
+    "static/js/3.53097be9.chunk.js.map": "/static/js/3.53097be9.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.6a1e7651.chunk.css.map": "/static/css/2.6a1e7651.chunk.css.map",
+    "static/css/main.3fee3b7e.chunk.css.map": "/static/css/main.3fee3b7e.chunk.css.map",
+    "static/js/2.18a3d78c.chunk.js.LICENSE.txt": "/static/js/2.18a3d78c.chunk.js.LICENSE.txt",
+    "static/media/Layout.css": "/static/media/heart.bb6e86e4.png",
+    "static/media/CardsPlayground.css": "/static/media/star.a2246025.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6e98d251.js",
+    "static/css/2.6a1e7651.chunk.css",
+    "static/js/2.18a3d78c.chunk.js",
+    "static/css/main.3fee3b7e.chunk.css",
+    "static/js/main.d80bddc6.chunk.js"
+  ]
+}
