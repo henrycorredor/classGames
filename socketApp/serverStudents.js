@@ -1,8 +1,9 @@
 const { nanoid } = require('nanoid')
-const userDropConection = require('./sessionControl')
+const sessionControl = require('./sessionControl')
 
 module.exports = function (io, rooms) {
 	const studentSocket = io.of('/student')
+	const dropConnection = sessionControl(rooms)
 
 	studentSocket.on('connect', (socket) => {
 
@@ -28,7 +29,9 @@ module.exports = function (io, rooms) {
 		}
 
 		socket.on('disconnect', () => {
-			//handle
+			if (room !== '') {
+				dropConnection(roomName, myId)
+			}
 		})
 
 		socket.on('join-room', (form, cb) => {

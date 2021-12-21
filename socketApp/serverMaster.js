@@ -1,8 +1,9 @@
 const sessionControl = require('./sessionControl')
-const gamesLibrary = require('./gamesLibrary/')
+const gamesLibrary = require('./gamesLibrary')
 
-module.exports = function (io, rooms, fastCardsClass, userDropConection) {
+module.exports = function (io, rooms) {
 	const masterSocket = io.of('/master')
+	const dropConnection = sessionControl(rooms)
 
 	masterSocket.on('connect', (socket) => {
 		console.log('master conectado')
@@ -38,14 +39,13 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 		}
 
 		socket.on('disconnect', () => {
-			if (room) {
-				//handle
+			if (room !== '') {
+				dropConnection(roomName, 'master')
 			}
 		})
 
 		socket.on('create-room', (gameOpts, cb) => {
-			//random = Math.floor(Math.random() * 90000) + 10000
-			random = Math.floor(Math.random() * 90) + 10
+			random = Math.floor(Math.random() * 900) + 100
 			roomName = 'room-' + random
 			rooms[roomName] = {
 				master: {
@@ -140,9 +140,7 @@ module.exports = function (io, rooms, fastCardsClass, userDropConection) {
 		})
 
 		socket.on('print', () => {
-			console.log(room.game)
-			console.log('----------------------')
-			console.log(room)
+			console.log(rooms)
 		})
 	})
 }
