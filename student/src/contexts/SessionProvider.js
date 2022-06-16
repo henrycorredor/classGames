@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react"
+import { createContext, useContext, useState } from "react"
+import useUpdateSession from "../hooks/useUpdateSession"
 
 const SessionContext = createContext()
 
@@ -22,7 +23,9 @@ export function useSession() {
 }
 
 export function SessionProvider({ children }) {
-    return <SessionContext.Provider value={{ ...initialSession }}>
+    const [session, setSession] = useState({ ...initialSession })
+    const updateSession = useUpdateSession(setSession)
+    return <SessionContext.Provider value={{ session, updateSession }}>
         {children}
     </SessionContext.Provider>
 }

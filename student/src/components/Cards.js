@@ -1,7 +1,7 @@
 import { useSession } from "../contexts/SessionProvider"
 
 export default function Cards() {
-    const session = useSession()
+    const { session, updateSession } = useSession()
     const { secuence, clickedSecuence, turnStatus } = session.game
 
     function statusBar() {
@@ -22,7 +22,7 @@ export default function Cards() {
                 return 'oops... hay un error'
         }
     }
-    
+
     function counterBar() {
         let outputText = 'Aqui vamos: '
         secuence.forEach((e, i) => {
@@ -35,7 +35,7 @@ export default function Cards() {
         return outputText
     }
 
-    function changeTurn(){
+    function changeTurn() {
         console.log('miau')
     }
 
@@ -45,8 +45,29 @@ export default function Cards() {
         gameControl(card)
     }
 
+    /*
+     status: "playing",
+    players: [
+        { id: "1", name: "Jugador 1", myTurn: true },
+        { id: "2", name: "Jugador 2", myTurn: false }
+    ],
+    game: {
+        deck: ['1', '2', '3', '4'],
+        actualSelection: 0,
+        secuence: [],
+        clickedSecuence: [],
+        turnStatus: 'waitingFirstClick'
+    }
+    */
+
     function gameControl(card) {
-        
+        const updateObj = {}
+        if (turnStatus === 'waitingFirstClick') {
+            updateObj.game.clickedSecuence.push(card)
+            updateObj.game.secuence.push(card)
+            updateObj.game.turnStatus = 'turnFinished'
+        }
+        updateSession(updateObj)
     }
 
     return (
