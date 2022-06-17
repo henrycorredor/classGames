@@ -1,13 +1,16 @@
 import './App.css';
-import GameBoard from './components/GameBoard'
-import { SessionProvider } from './contexts/SessionProvider'
+//import GameBoard from './components/GameBoard'
+//import { SessionProvider } from './contexts/SessionProvider'
+//import { SocketProvider } from './contexts/SocketProvider'
 
-function App() {
-  return (
-    <SessionProvider>
-      <GameBoard />
-    </SessionProvider>
-  )
+function Orale({ children }) {
+  console.log('orale')
+  return <div>Holi - {children}</div>
 }
 
-export default App
+export default function App() {
+  console.log('App una vez')
+  return (
+    <Orale> Lala </Orale>
+  )
+}
