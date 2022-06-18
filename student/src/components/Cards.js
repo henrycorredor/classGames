@@ -1,10 +1,10 @@
 import { useSession } from "../contexts/SessionProvider"
+import { useSocket } from "../contexts/SocketProvider"
 
 export default function Cards() {
-    const { session, updateSession } = useSession()
+    const { session } = useSession()
+    const socket = useSocket()
     const { secuence, clickedSecuence, turnStatus } = session.game
-
-    console.log(session)
 
     function statusBar() {
         const userIndex = session.players.findIndex(u => u.myTurn)
@@ -16,11 +16,19 @@ export default function Cards() {
             case 'hittedCorrect':
                 return 'Muy bien! Seleccione la siguiente'
             case 'hittedWrong':
-                return <button onClick={changeTurn}>Oh oh! incorrecto. Turno para {session.players[nextUser].name}</button>
+                return (
+                    session.myInfo.myTurn ?
+                        <button onClick={changeTurn}>Oh oh! incorrecto. Turno para {session.players[nextUser].name}</button> :
+                        `Oh oh! incorrecto. Turno para ${session.players[nextUser].name}`
+                )
             case 'lastCard':
                 return 'Muy bien! Agrege una carta nueva'
             case 'turnFinished':
-                return <button onClick={changeTurn}> Muy bien! Turno para {session.players[nextUser].name}</button>
+                return (
+                    session.myInfo.myTurn ?
+                        <button onClick={changeTurn}> Muy bien! Turno para {session.players[nextUser].name}</button> :
+                        `Muy bien! Turno para ${session.players[nextUser].name}`
+                )
             default:
                 return 'oops... hay un error'
         }
@@ -49,56 +57,27 @@ export default function Cards() {
 
 
     function handleClick(card) {
-        if (turnStatus !== 'turnFinished' && turnStatus !== 'hittedWrong') {
-            gameControl(card)
+        if (session.myInfo.myTurn) {
+            if (turnStatus !== 'turnFinished' && turnStatus !== 'hittedWrong') {
+                gameControl(card)
+            }
         }
     }
 
     function changeTurn() {
-        const turnIndex = session.players.findIndex(p => p.myTurn)
-        const nextTurn = (turnIndex === session.players.length - 1) ? 0 : turnIndex + 1
-        const newPlayersList = session.players.map((p, i) => {
-            return {
-                ...p,
-                myTurn: i === nextTurn
-            }
-        })
-
-        updateSession({
-            players: [...newPlayersList],
-            game: {
-                clickedSecuence: [],
-                turnStatus: 'waitingFirstClick'
-            }
-        })
+        socket.emit('change-turn')
     }
 
     function gameControl(card) {
-        const updateObj = {}
-        if (secuence.length === clickedSecuence.length) {
-            updateObj.game = {
-                clickedSecuence: [...clickedSecuence, card],
-                secuence: [...secuence, card],
-                turnStatus: 'turnFinished'
-            }
-        } else if (secuence.length - 1 === clickedSecuence.length) {
-            updateObj.game = {
-                turnStatus: (secuence[clickedSecuence.length] === card) ? 'lastCard' : "hittedWrong",
-                clickedSecuence: [...clickedSecuence, card]
-            }
-        } else if (secuence.length > clickedSecuence.length) {
-            updateObj.game = {
-                turnStatus: (secuence[clickedSecuence.length] === card) ? "hittedCorrect" : "hittedWrong",
-                clickedSecuence: [...clickedSecuence, card]
-            }
-        }
-
-        updateSession(updateObj)
+        socket.emit('click-on-card', card)
     }
 
     return (
         <div>
-            <div>{session.myInfo.name} - {session.myInfo.id}</div>
+            <div>
+                {session.myInfo.name}
+                {session.myInfo.myTurn ? " - me toca" : ''}
+            </div>
             <div className='cards_deck'>
                 {session.game.deck.map(
                     (item, index) => (

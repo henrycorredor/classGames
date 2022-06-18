@@ -1,16 +1,14 @@
 import './App.css';
-//import GameBoard from './components/GameBoard'
-//import { SessionProvider } from './contexts/SessionProvider'
-//import { SocketProvider } from './contexts/SocketProvider'
-
-function Orale({ children }) {
-  console.log('orale')
-  return <div>Holi - {children}</div>
-}
+import GameBoard from './components/GameBoard'
+import { SessionProvider } from './contexts/SessionProvider'
+import { SocketProvider } from './contexts/SocketProvider'
 
 export default function App() {
-  console.log('App una vez')
   return (
-    <Orale> Lala </Orale>
+    <SocketProvider>
+      <SessionProvider>
+        <GameBoard />
+      </SessionProvider>
+    </SocketProvider>
   )
 }

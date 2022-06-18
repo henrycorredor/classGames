@@ -8,7 +8,8 @@ const initialSession = {
     status: "connecting",
     myInfo: {
         id: '',
-        name: ''
+        name: '',
+        myTurn: false
     },
     players: [],
     game: {
@@ -32,17 +33,17 @@ export function SessionProvider({ children }) {
         if (socket && session.status === 'connecting') {
             console.log('establece listeners')
 
-            socket.on('myId', (myData) => {
-                console.log('recibida información personal')
-                updateSession({ myInfo: { ...myData } })
-            })
-
             socket.on('gameObj', (gameObj) => {
-                console.log('hey update!')
-                updateSession({ ...gameObj })
+                console.log('actualiza objeto de juego')
+                socket.emit('update-my-info', (myInfo) => {
+                    updateSession({
+                        myInfo,
+                        ...gameObj
+                    })
+                })
             })
         }
-    }, [session.status, socket, updateSession])
+    }, [session.status, session.myInfo, socket, updateSession])
 
     return <SessionContext.Provider value={{ session, updateSession }}>
         {children}
