@@ -18,7 +18,7 @@ export function SocketProvider({ children }) {
             canPass.current = false
             console.log('intenta establecer el zoquete')
             if (!socket) {
-                const newSocket = io(`http://${window.location.hostname}:3000`)
+                const newSocket = io(`http://${window.location.hostname}`)
                 setSocket(newSocket)
                 console.log('zoquete establecido')
             }
