@@ -12,9 +12,17 @@ export default function Cards() {
 
         switch (turnStatus) {
             case 'waitingFirstClick':
-                return `${session.players[userIndex].name}: Seleccione la primera carta `
+                return (
+                    session.myInfo.myTurn ?
+                        `Seleccione la primera carta ` :
+                        `${session.players[userIndex].name} va a seleccionar la primera carta.`
+                )
             case 'hittedCorrect':
-                return 'Muy bien! Seleccione la siguiente'
+                return (
+                    session.myInfo.myTurn ?
+                        'Muy bien! Seleccione la siguiente' :
+                        'Muy bien!'
+                )
             case 'hittedWrong':
                 return (
                     session.myInfo.myTurn ?
@@ -22,7 +30,11 @@ export default function Cards() {
                         `Oh oh! incorrecto. Turno para ${session.players[nextUser].name}`
                 )
             case 'lastCard':
-                return 'Muy bien! Agrege una carta nueva'
+                return (
+                    session.myInfo.myTurn ?
+                        'Muy bien! Agrege una carta nueva' :
+                        'Muy bien! Una carta más'
+                )
             case 'turnFinished':
                 return (
                     session.myInfo.myTurn ?
@@ -35,24 +47,23 @@ export default function Cards() {
     }
 
     function counterBar() {
-        let outputText = 'Estado: '
-        secuence.forEach((e, i) => {
+        return secuence.map((e, i) => {
             if (i >= clickedSecuence.length) {
-                outputText += '0 '
+                return <div className="circle waiting"></div>
             } else {
                 if (clickedSecuence[i] === e) {
-                    outputText += turnStatus === 'turnFinished' && i === secuence.length - 1 ? '!!' : 'V '
+                    return (
+                        turnStatus === 'turnFinished' && i === secuence.length - 1 ?
+                            <div className="circle selectedNew"></div> :
+                            turnStatus === 'lastCard' && i === secuence.length - 1 ?
+                                <><div className="circle right"></div>  <div className="circle waitingNew"></div></> :
+                                <div className="circle right"></div>
+                    )
                 } else {
-                    outputText += 'X '
+                    return <div className="circle wrong"></div>
                 }
             }
         })
-
-        if (clickedSecuence.length === secuence.length && turnStatus === 'lastCard') {
-            outputText += '.'
-        }
-
-        return outputText
     }
 
 
@@ -74,7 +85,7 @@ export default function Cards() {
 
     return (
         <div>
-            <div>
+            <div id='head' className={session.myInfo.myTurn ? 'meToca' : ''}>
                 {session.myInfo.name}
                 {session.myInfo.myTurn ? " - me toca" : ''}
             </div>
@@ -92,14 +103,14 @@ export default function Cards() {
                     )
                 )}
             </div>
-            <div>
+            <div id='status-bar'>
                 {statusBar()}
             </div>
-            <div>
+            <div id='counter-bar'>
                 {counterBar()}
             </div>
-            <div>
-                {session.players.map(item => <div key={item.id} className={item.myTurn ? 'myTurn' : 'waiting'}>{item.myTurn ? '-> ' : ''}{item.name}</div>)}
+            <div id='users-list-bar'>
+                {session.players.map(item => <div key={item.id} className={item.myTurn ? item.id === session.myInfo.id ? 'myTurn' : 'othersTurn' : 'waiting'}>{item.name}</div>)}
             </div>
         </div>
     )

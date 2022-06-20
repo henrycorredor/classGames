@@ -7,8 +7,6 @@ const server = require('http').createServer(app)
 app.use(cors())
 
 const { Server } = require("socket.io")
-const { on } = require('events')
-const { isGeneratorFunction } = require('util/types')
 const io = new Server(server, {
     cors: {
         origin: '*'
@@ -60,6 +58,8 @@ io.on('connection', (socket) => {
 
         if (gameSession.players.length === 0) {
             gameSession.game.secuence = []
+            gameSession.game.turnStatus = 'waitingFirstClick'
+            console.log('sesion terminada')
         }
         io.emit('gameObj', gameSession)
     })
