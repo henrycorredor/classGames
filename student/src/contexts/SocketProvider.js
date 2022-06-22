@@ -17,10 +17,13 @@ export function SocketProvider({ children }) {
         if (canPass.current) {
             canPass.current = false
             console.log('intenta establecer el zoquete')
+            const socketUrl = process.env.REACT_APP_NODE_ENV === 'local' ?
+                process.env.REACT_APP_SOCKET_URL :
+                `http://${window.location.hostname}`
             if (!socket) {
-                const newSocket = io(`http://${window.location.hostname}`)
+                const newSocket = io(socketUrl)
                 setSocket(newSocket)
-                console.log('zoquete establecido')
+                console.log(`zoquete establecido desde ${socketUrl}, ${process.env.REACT_APP_NODE_ENV}`)
             }
         }
         return () => { if (socket) { socket.close() } }
