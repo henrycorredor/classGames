@@ -20,7 +20,7 @@ module.exports = function gameControl(io) {
         const playerId = gameSession.players.length === 0 ? 1 : gameSession.players[gameSession.players.length - 1].id + 1
         const myInfo = {
             id: playerId,
-            name: `Jugador ${playerId}`,
+            name: `no-name`,
             myTurn: playerId === 1
         }
 
@@ -54,6 +54,13 @@ module.exports = function gameControl(io) {
         socket.on('update-my-info', (cb) => {
             const myIndex = gameSession.players.findIndex(p => p.id === playerId)
             cb(gameSession.players[myIndex])
+        })
+
+        socket.on('register-name', (newName)=>{
+            const myIndex = gameSession.players.findIndex(p => p.id === playerId)
+            gameSession.players[myIndex].name = newName
+            myInfo.name = newName
+            io.emit('gameObj', gameSession)
         })
 
         //game controls

@@ -8,7 +8,7 @@ const initialSession = {
     status: "connecting",
     myInfo: {
         id: '',
-        name: '',
+        name: 'no-name',
         myTurn: false
     },
     players: [],

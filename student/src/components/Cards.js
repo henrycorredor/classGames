@@ -1,10 +1,19 @@
 import { useSession } from "../contexts/SessionProvider"
 import { useSocket } from "../contexts/SocketProvider"
+import { useTranslation } from "react-i18next"
+
+/*
+recursois para el diseño:
+https://www.w3docs.com/snippets/html/how-to-make-a-div-fill-the-height-of-the-remaining-space.html
+https://www.w3docs.com/tools/code-editor/10428
+*/
 
 export default function Cards() {
     const { session } = useSession()
     const socket = useSocket()
     const { secuence, clickedSecuence, turnStatus } = session.game
+
+    const { t } = useTranslation()
 
     function statusBar() {
         const userIndex = session.players.findIndex(u => u.myTurn)
@@ -14,58 +23,67 @@ export default function Cards() {
             case 'waitingFirstClick':
                 return (
                     session.myInfo.myTurn ?
-                        `Seleccione la primera carta ` :
-                        `${session.players[userIndex].name} va a seleccionar la primera carta.`
+                        t('SELECCIONE_LA_PRIMERA_CARTA') :
+                        t('VA_A_SELECCIONAR_LA_PRIMERA_CARTA', { playerName: session.players[userIndex].name })
                 )
             case 'hittedCorrect':
                 return (
                     session.myInfo.myTurn ?
-                        'Muy bien! Seleccione la siguiente' :
-                        'Muy bien!'
+                        t('MUY_BIEN_SELECCIONE_LA_SIGUIENTE') :
+                        t('MUY_BIEN')
                 )
             case 'hittedWrong':
                 return (
                     session.myInfo.myTurn ?
-                        <button onClick={changeTurn}>Oh oh! incorrecto. Turno para {session.players[nextUser].name}</button> :
-                        `Oh oh! incorrecto. Turno para ${session.players[nextUser].name}`
+                        <button className="bigButton" onClick={changeTurn}>{t('OH_NO_INCORRECTO_TURNO_PARA')} {session.players[nextUser].name}</button> :
+                        t('OH_NO_INCORRECTO_TURNO_PARA', { playerName: session.players[nextUser].name })
                 )
             case 'lastCard':
                 return (
                     session.myInfo.myTurn ?
-                        'Muy bien! Agrege una carta nueva' :
-                        'Muy bien! Una carta más'
+                        t('MUY_BIEN_AGREGUE_UNA_CARTA_NUEVA') :
+                        t('MUY_BIEN_UNA_CARTA_MAS')
                 )
             case 'turnFinished':
                 return (
                     session.myInfo.myTurn ?
-                        <button onClick={changeTurn}> Muy bien! Turno para {session.players[nextUser].name}</button> :
-                        `Muy bien! Turno para ${session.players[nextUser].name}`
+                        <button className="bigButton" onClick={changeTurn}> {t('MUY_BIEN_TURNO_PARA', { playerName: session.players[nextUser].name })}</button> :
+                        t('MUY_BIEN_TURNO_PARA', { playerName: session.players[nextUser].name })
                 )
             default:
-                return 'oops... hay un error'
+                return t('ERROR')
         }
     }
 
     function counterBar() {
         return secuence.map((e, i) => {
             if (i >= clickedSecuence.length) {
-                return <div className="circle waiting"></div>
+                return <div key={i} className="circle waiting"></div>
             } else {
                 if (clickedSecuence[i] === e) {
                     return (
                         turnStatus === 'turnFinished' && i === secuence.length - 1 ?
-                            <div className="circle selectedNew"></div> :
+                            <div key={i} className="circle selectedNew"></div> :
                             turnStatus === 'lastCard' && i === secuence.length - 1 ?
-                                <><div className="circle right"></div>  <div className="circle waitingNew"></div></> :
-                                <div className="circle right"></div>
+                                <div key={i} className="counterLastGroup"><div className="circle right"></div>  <div className="circle waitingNew"></div></div> :
+                                <div key={i} className="circle right"></div>
                     )
                 } else {
-                    return <div className="circle wrong"></div>
+                    return <div key={i} className="circle wrong"></div>
                 }
             }
         })
     }
 
+    function playersList() {
+        return (
+            session.players.map(p => (
+                <div key={p.id} className={p.myTurn ? p.id === session.myInfo.id ? 'myTurn' : 'othersTurn' : 'waiting'}>
+                    {p.name === 'no-name' ? '???' : p.name}
+                </div>
+            ))
+        )
+    }
 
     function handleClick(card) {
         if (session.myInfo.myTurn) {
@@ -87,7 +105,7 @@ export default function Cards() {
         <div>
             <div id='head' className={session.myInfo.myTurn ? 'meToca' : ''}>
                 {session.myInfo.name}
-                {session.myInfo.myTurn ? " - me toca" : ''}
+                {session.myInfo.myTurn ? ` - ${t('ME_TOCA')}` : ''}
             </div>
             <div className='cards_deck'>
                 {session.game.deck.map(
@@ -110,7 +128,7 @@ export default function Cards() {
                 {counterBar()}
             </div>
             <div id='users-list-bar'>
-                {session.players.map(item => <div key={item.id} className={item.myTurn ? item.id === session.myInfo.id ? 'myTurn' : 'othersTurn' : 'waiting'}>{item.name}</div>)}
+                {playersList()}
             </div>
         </div>
     )
