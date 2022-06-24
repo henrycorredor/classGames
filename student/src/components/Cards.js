@@ -102,12 +102,12 @@ export default function Cards() {
     }
 
     return (
-        <div>
-            <div id='head' className={session.myInfo.myTurn ? 'meToca' : ''}>
+        <div id="main-container">
+            <div id='head' className={session.myInfo.myTurn ? 'meToca row' : 'row'}>
                 {session.myInfo.name}
                 {session.myInfo.myTurn ? ` - ${t('ME_TOCA')}` : ''}
             </div>
-            <div className='cards_deck'>
+            <div id="game-container" className='cards_deck row'>
                 {session.game.deck.map(
                     (item, index) => (
                         <div
@@ -121,14 +121,16 @@ export default function Cards() {
                     )
                 )}
             </div>
-            <div id='status-bar'>
-                {statusBar()}
-            </div>
-            <div id='counter-bar'>
-                {counterBar()}
-            </div>
-            <div id='users-list-bar'>
-                {playersList()}
+            <div id='footer' className="row">
+                <div id='status-bar'>
+                    {statusBar()}
+                </div>
+                <div id='counter-bar'>
+                    {counterBar()}
+                </div>
+                <div id='users-list-bar'>
+                    {playersList()}
+                </div>
             </div>
         </div>
     )

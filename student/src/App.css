@@ -7,37 +7,17 @@
   pointer-events: none;
 }
 
-.card {
-  border: 1px solid black;
-  height: 10px;
-  width: 100px;
-  margin: 40px;
-  cursor: pointer;
+#main-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: x-large;
-  font-weight: bold;
-  border-radius: 15px;
-}
-
-.card.selected {
-  outline: 6px solid grey;
-}
-
-.cards_deck {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  border: solid 1px black;
-  height: auto;
+  flex-flow: column;
+  height: 100vh;
 }
 
 #head {
-  padding: 20px 10px 0 10px;
+  padding: 15px 0 8px 0;
   text-align: center;
   font-size: x-large;
+  flex: 0 1 auto;
 }
 
 #head.meToca {
@@ -45,9 +25,50 @@
   color: rgb(174, 0, 0);
 }
 
+
+#game-container {
+  flex: 1 1 auto;
+}
+
+#footer {
+  flex: 0 1 auto;
+}
+
+.cards_deck {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: x-large;
+  font-weight: bold;
+  border-radius: 15px;
+  flex: 1 0 150px;
+  margin: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.068);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.394);
+  transition: box-shadow 0.1s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.card.selected {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.851);
+}
+
 #status-bar {
   padding: 10px;
   text-align: center;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #counter-bar {
@@ -124,25 +145,26 @@
   display: flex;
 }
 
-.bigButton{
+.bigButton {
   height: 30px;
   font-size: large;
 }
 
-.formContainer{
+.formContainer {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.formContainer form{
+.formContainer form {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-form input, form button{
+form input,
+form button {
   margin: 5px;
   width: 250px;
   height: 50px;
@@ -151,5 +173,5 @@ form input, form button{
   font-size: larger;
   border-radius: 30px;
   border: 0;
-  box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.75);
+  box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.75);
 }
